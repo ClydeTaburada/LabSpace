@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Page has correct title",
+    "selector": "title",
+    "contains": "My Web Page"
+  },
+  {
+    "name": "Page has navigation menu",
+    "selector": "nav",
+    "exists": true
+  },
+  {
+    "name": "Navigation has at least 3 links",
+    "selector": "nav a",
+    "count": 3
+  },
+  {
+    "name": "Page has main heading",
+    "selector": "h1",
+    "contains": "Welcome"
+  },
+  {
+    "name": "Page has a form element",
+    "selector": "form",
+    "exists": true
+  },
+  {
+    "name": "Form has email input",
+    "selector": "input[type='email']",
+    "exists": true
+  },
+  {
+    "name": "Form has submit button",
+    "selector": "button[type='submit']",
+    "exists": true
+  },
+  {
+    "name": "Footer has copyright information",
+    "selector": "footer",
+    "contains": "Copyright"
+  }
+]

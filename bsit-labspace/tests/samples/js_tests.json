@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Function 'add' works correctly",
+    "function": "add",
+    "input": [5, 3],
+    "expected": 8,
+    "message": "The add function should return the sum of two numbers"
+  },
+  {
+    "name": "Function 'multiply' works correctly",
+    "function": "multiply",
+    "input": [4, 3],
+    "expected": 12,
+    "message": "The multiply function should return the product of two numbers"
+  },
+  {
+    "name": "Function 'capitalize' works correctly",
+    "function": "capitalize",
+    "input": "hello world",
+    "expected": "Hello world",
+    "message": "The capitalize function should capitalize the first letter"
+  },
+  {
+    "name": "Function 'countChars' works correctly",
+    "function": "countChars",
+    "input": "hello",
+    "expected": 5,
+    "message": "The countChars function should return the number of characters"
+  },
+  {
+    "name": "Function 'isEven' works correctly for even numbers",
+    "function": "isEven",
+    "input": 6,
+    "expected": true,
+    "message": "The isEven function should return true for even numbers"
+  },
+  {
+    "name": "Function 'isEven' works correctly for odd numbers",
+    "function": "isEven",
+    "input": 7,
+    "expected": false,
+    "message": "The isEven function should return false for odd numbers"
+  },
+  {
+    "name": "Function 'reverseString' works correctly",
+    "test": "assert(reverseString('hello') === 'olleh');",
+    "message": "The reverseString function should reverse the string"
+  },
+  {
+    "name": "Custom testing for sorting array",
+    "test": "const arr = [3, 1, 4, 2]; const sorted = sortArray(arr); assert(sorted[0] === 1 && sorted[1] === 2 && sorted[2] === 3 && sorted[3] === 4);",
+    "message": "The sortArray function should sort an array in ascending order"
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Body has correct background color",
+    "selector": "body",
+    "property": "background-color",
+    "value": "#f4f4f4"
+  },
+  {
+    "name": "Headings have proper font family",
+    "selector": "h1",
+    "property": "font-family",
+    "contains": "sans-serif"
+  },
+  {
+    "name": "Navigation links are styled correctly",
+    "selector": "nav a",
+    "property": "color",
+    "value": "#333"
+  },
+  {
+    "name": "Paragraphs have correct font size",
+    "selector": "p",
+    "property": "font-size",
+    "value": "16px"
+  },
+  {
+    "name": "Cards have proper shadow",
+    "selector": ".card",
+    "property": "box-shadow",
+    "contains": "rgba"
+  },
+  {
+    "name": "Buttons have hover effect",
+    "selector": ".btn:hover",
+    "property": "transform",
+    "contains": "scale"
+  }
+]

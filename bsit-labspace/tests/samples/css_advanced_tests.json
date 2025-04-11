@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Layout - Uses flexbox for navigation",
+    "selector": "nav",
+    "property": "display",
+    "value": "flex",
+    "category": "layout",
+    "message": "The navigation should use flexbox for layout"
+  },
+  {
+    "name": "Layout - Uses grid for main content",
+    "selector": "main",
+    "property": "display",
+    "value": "grid",
+    "category": "layout",
+    "message": "The main content should use CSS Grid for layout"
+  },
+  {
+    "name": "Typography - Defines font family for body",
+    "selector": "body",
+    "property": "font-family",
+    "contains": "sans-serif",
+    "category": "typography",
+    "message": "Set a sans-serif font family for the body text"
+  },
+  {
+    "name": "Typography - Headings have proper font size",
+    "selector": "h1",
+    "property": "font-size",
+    "contains": "rem",
+    "category": "typography",
+    "message": "Use relative units (rem) for heading font sizes"
+  },
+  {
+    "name": "Color - Has proper contrast for accessibility",
+    "selector": "body",
+    "property": "color",
+    "value": "#333",
+    "category": "accessibility",
+    "message": "Use a dark text color (#333) for good contrast"
+  },
+  {
+    "name": "Color - Uses brand colors",
+    "selector": "header",
+    "property": "background-color",
+    "value": "#4285f4",
+    "category": "branding",
+    "message": "Use the brand blue color (#4285f4) for the header"
+  },
+  {
+    "name": "Responsive - Media query for mobile devices",
+    "selector": "@media",
+    "property": "max-width",
+    "contains": "768px",
+    "category": "responsive",
+    "message": "Include a media query for mobile devices (max-width: 768px)"
+  },
+  {
+    "name": "Animation - Button has hover effect",
+    "selector": "button:hover",
+    "property": "transform",
+    "contains": "scale",
+    "category": "animation",
+    "message": "Add a scale transform effect to buttons on hover"
+  },
+  {
+    "name": "Spacing - Container has proper padding",
+    "selector": ".container",
+    "property": "padding",
+    "contains": "20px",
+    "category": "layout",
+    "message": "Add padding of at least 20px to the container"
+  },
+  {
+    "name": "Card styling - Uses shadow effect",
+    "selector": ".card",
+    "property": "box-shadow",
+    "contains": "rgba",
+    "category": "effects",
+    "message": "Add a box-shadow effect to cards using rgba colors for depth"
+  }
+]

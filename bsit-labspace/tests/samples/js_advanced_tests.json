@@ -1,0 +1,87 @@
+[
+  {
+    "name": "Core Functionality - calculateTotal works with multiple items",
+    "function": "calculateTotal",
+    "input": [[
+      {"name": "Item 1", "price": 10, "quantity": 2},
+      {"name": "Item 2", "price": 5, "quantity": 3}
+    ]],
+    "expected": 35,
+    "category": "core",
+    "message": "The calculateTotal function should multiply each item's price by quantity and return the sum"
+  },
+  {
+    "name": "Core Functionality - formatCurrency works correctly",
+    "function": "formatCurrency",
+    "input": [1234.56],
+    "expected": "$1,234.56",
+    "category": "core",
+    "message": "The formatCurrency function should format numbers as currency with $ symbol and commas"
+  },
+  {
+    "name": "Data Validation - validateEmail accepts valid email",
+    "function": "validateEmail",
+    "input": "test@example.com",
+    "expected": true,
+    "category": "validation",
+    "message": "The validateEmail function should return true for valid email addresses"
+  },
+  {
+    "name": "Data Validation - validateEmail rejects invalid email",
+    "function": "validateEmail",
+    "input": "invalid-email",
+    "expected": false,
+    "category": "validation",
+    "message": "The validateEmail function should return false for invalid email addresses"
+  },
+  {
+    "name": "Data Processing - sortByProperty sorts array of objects",
+    "test": "const data = [{name: 'C', age: 30}, {name: 'A', age: 20}, {name: 'B', age: 10}]; const sorted = sortByProperty(data, 'name'); assert(sorted[0].name === 'A' && sorted[1].name === 'B' && sorted[2].name === 'C');",
+    "category": "data",
+    "message": "The sortByProperty function should sort an array of objects by the specified property"
+  },
+  {
+    "name": "Error Handling - safelyParseJSON returns null for invalid JSON",
+    "function": "safelyParseJSON",
+    "input": "{ invalid: json }",
+    "expected": null,
+    "category": "errors",
+    "message": "The safelyParseJSON function should return null when given invalid JSON"
+  },
+  {
+    "name": "Error Handling - safelyParseJSON parses valid JSON",
+    "test": "const result = safelyParseJSON('{\"name\":\"test\"}'); assert(result !== null && result.name === 'test');",
+    "category": "errors",
+    "message": "The safelyParseJSON function should correctly parse valid JSON strings"
+  },
+  {
+    "name": "Async Operations - fetchData returns a promise",
+    "test": "assert(fetchData() instanceof Promise);",
+    "category": "async",
+    "message": "The fetchData function should return a Promise object"
+  },
+  {
+    "name": "DOM Manipulation - createElement adds element to DOM",
+    "test": "document.body.innerHTML = ''; createElement('div', 'test-div', 'Test Content'); const div = document.getElementById('test-div'); assert(div && div.textContent === 'Test Content');",
+    "category": "dom",
+    "message": "The createElement function should create and append an element with the specified ID and content"
+  },
+  {
+    "name": "Code Structure - Uses modern ES6 features",
+    "contains": "const ",
+    "category": "structure",
+    "message": "Your code should use modern ES6 features like const declarations"
+  },
+  {
+    "name": "Code Structure - Uses arrow functions",
+    "contains": "=>",
+    "category": "structure",
+    "message": "Your code should use arrow functions"
+  },
+  {
+    "name": "Event Handling - Properly handles click events",
+    "test": "document.body.innerHTML = '<button id=\"test-btn\"></button>'; setupEventListeners(); const btn = document.getElementById('test-btn'); let clicked = false; btn.addEventListener = (evt, fn) => { if (evt === 'click') clicked = true; }; assert(clicked);",
+    "category": "events",
+    "message": "The setupEventListeners function should add a click event handler to the button"
+  }
+]

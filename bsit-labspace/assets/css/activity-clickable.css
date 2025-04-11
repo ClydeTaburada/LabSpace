@@ -1,0 +1,122 @@
+/**
+ * Activity Click Styles
+ * These styles make it more obvious that activities are clickable
+ */
+
+/* Basic clickable style */
+.activity-item, 
+.activity-link,
+[data-activity-id],
+.activity-clickable {
+    position: relative;
+    cursor: pointer !important;
+    transition: all 0.2s ease;
+}
+
+/* Hover effects */
+.activity-item:hover, 
+.activity-link:hover,
+[data-activity-id]:hover,
+.activity-clickable:hover {
+    background-color: rgba(13, 110, 253, 0.05) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Active effects */
+.activity-item:active, 
+.activity-link:active,
+[data-activity-id]:active,
+.activity-clickable:active,
+.activity-item.active-click, 
+.activity-link.active-click,
+[data-activity-id].active-click,
+.activity-clickable.active-click {
+    background-color: rgba(13, 110, 253,.12) !important;
+    transform: translateY(0);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* Add a subtle click indicator to activity items */
+.activity-item:not(.no-indicator)::after,
+.activity-clickable:not(.no-indicator)::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-top: 2px solid #0d6efd;
+    border-right: 2px solid #0d6efd;
+    transform: translateY(-50%) rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.2s ease, right 0.2s ease;
+}
+
+.activity-item:hover::after,
+.activity-clickable:hover::after {
+    opacity: 0.8;
+    right: 15px;
+}
+
+/* Emergency button and indicator styling */
+.emergency-access-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.emergency-access-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* On-page emergency access panel */
+.emergency-access-panel {
+    position: fixed;
+    bottom: 75px;
+    right: 20px;
+    z-index: 9998;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    max-width: 300px;
+    display: none;
+}
+
+/* Highlight activity items that are actionable */
+.activity-item, [data-activity-id] {
+    position: relative;
+    overflow: hidden;
+}
+
+.activity-item::before, [data-activity-id]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+}
+
+.activity-item:hover::before, [data-activity-id]:hover::before {
+    background-color: #0d6efd;
+}

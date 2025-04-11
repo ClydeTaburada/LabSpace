@@ -1,0 +1,88 @@
+[
+  {
+    "name": "Accessibility - Page has proper language attribute",
+    "selector": "html",
+    "attribute": "lang",
+    "contains": "en",
+    "category": "accessibility",
+    "message": "The HTML tag should have a lang attribute set to 'en' for proper accessibility"
+  },
+  {
+    "name": "Accessibility - Images have alt text",
+    "selector": "img:not([alt])",
+    "count": 0,
+    "category": "accessibility",
+    "message": "All images should have alt attributes for screen readers"
+  },
+  {
+    "name": "Structure - Page has header section",
+    "selector": "header",
+    "exists": true,
+    "category": "structure",
+    "message": "Your page should include a <header> element"
+  },
+  {
+    "name": "Structure - Page has main content area",
+    "selector": "main",
+    "exists": true,
+    "category": "structure",
+    "message": "Your page should include a <main> element for the primary content"
+  },
+  {
+    "name": "Structure - Page has footer section",
+    "selector": "footer",
+    "exists": true,
+    "category": "structure",
+    "message": "Your page should include a <footer> element"
+  },
+  {
+    "name": "Navigation - Main menu has proper ARIA role",
+    "selector": "nav",
+    "attribute": "role",
+    "contains": "navigation",
+    "category": "accessibility",
+    "message": "The navigation menu should have role='navigation' for better accessibility"
+  },
+  {
+    "name": "Content - Page has main heading",
+    "selector": "h1",
+    "exists": true,
+    "category": "content",
+    "message": "Include an h1 heading as the main title of your page"
+  },
+  {
+    "name": "Content - Page has multiple sections",
+    "selector": "section",
+    "count": 3,
+    "category": "structure",
+    "message": "The page should have exactly 3 section elements"
+  },
+  {
+    "name": "Form - Contact form exists",
+    "selector": "form",
+    "exists": true,
+    "category": "forms",
+    "message": "Include a form element for the contact form"
+  },
+  {
+    "name": "Form - Has required name field",
+    "selector": "form input[name='name'][required]",
+    "exists": true,
+    "category": "forms",
+    "message": "The form should include a required name field"
+  },
+  {
+    "name": "Form - Has email field with validation",
+    "selector": "form input[type='email']",
+    "exists": true,
+    "category": "forms",
+    "message": "The form should include an email field with proper input type"
+  },
+  {
+    "name": "Form - Has submit button",
+    "selector": "form button[type='submit'], form input[type='submit']",
+    "exists": true,
+    "category": "forms",
+    "message": "The form should include a submit button"
+  }
+]

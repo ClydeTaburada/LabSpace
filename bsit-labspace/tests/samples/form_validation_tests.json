@@ -1,0 +1,94 @@
+[
+  {
+    "name": "Form - validateForm function exists",
+    "function": "validateForm",
+    "input": [],
+    "expected": false,
+    "category": "validation",
+    "message": "The validateForm function should exist and return false for empty input"
+  },
+  {
+    "name": "Email - validateEmail accepts valid email",
+    "function": "validateEmail",
+    "input": "user@example.com",
+    "expected": true,
+    "category": "validation",
+    "message": "The validateEmail function should validate properly formatted email addresses"
+  },
+  {
+    "name": "Email - validateEmail rejects invalid format",
+    "function": "validateEmail",
+    "input": "not-an-email",
+    "expected": false,
+    "category": "validation",
+    "message": "The validateEmail function should reject improperly formatted strings"
+  },
+  {
+    "name": "Email - validateEmail rejects empty string",
+    "function": "validateEmail",
+    "input": "",
+    "expected": false,
+    "category": "validation",
+    "message": "The validateEmail function should reject empty strings"
+  },
+  {
+    "name": "Password - validatePassword requires minimum length",
+    "function": "validatePassword",
+    "input": "short",
+    "expected": false,
+    "category": "validation",
+    "message": "The validatePassword function should reject passwords shorter than 8 characters"
+  },
+  {
+    "name": "Password - validatePassword accepts valid passwords",
+    "function": "validatePassword",
+    "input": "Password123!",
+    "expected": true,
+    "category": "validation",
+    "message": "The validatePassword function should accept passwords that meet requirements"
+  },
+  {
+    "name": "Names - validateName rejects names with numbers",
+    "function": "validateName",
+    "input": "John123",
+    "expected": false,
+    "category": "validation",
+    "message": "The validateName function should reject names containing numbers"
+  },
+  {
+    "name": "Names - validateName accepts proper names",
+    "function": "validateName",
+    "input": "John Doe",
+    "expected": true,
+    "category": "validation",
+    "message": "The validateName function should accept properly formatted names"
+  },
+  {
+    "name": "Phone - validatePhone accepts valid US format",
+    "function": "validatePhone",
+    "input": "555-123-4567",
+    "expected": true,
+    "category": "validation",
+    "message": "The validatePhone function should accept properly formatted US phone numbers"
+  },
+  {
+    "name": "Phone - validatePhone rejects invalid formats",
+    "function": "validatePhone",
+    "input": "12345",
+    "expected": false,
+    "category": "validation",
+    "message": "The validatePhone function should reject improperly formatted phone numbers"
+  },
+  {
+    "name": "Form - displayError function shows error messages",
+    "test": "document.body.innerHTML = '<div id=\"error-container\"></div>'; displayError('test-field', 'Test error message'); return document.getElementById('error-container').textContent.includes('Test error message');",
+    "category": "ui",
+    "message": "The displayError function should display error messages in the error container"
+  },
+  {
+    "name": "Form - resetErrors clears all error messages",
+    "test": "document.body.innerHTML = '<div id=\"error-container\">Error message</div>'; resetErrors(); return document.getElementById('error-container').textContent === '';",
+    "category": "ui",
+    "message": "The resetErrors function should clear all error messages"
+  }
+]

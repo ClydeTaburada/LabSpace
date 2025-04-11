@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Database - createUser function adds user correctly",
+    "test": "$user = ['name' => 'Test User', 'email' => 'test@example.com', 'role' => 'user']; $id = createUser($user); return $id > 0;",
+    "category": "database",
+    "message": "The createUser function should insert a user record and return the new ID"
+  },
+  {
+    "name": "Database - getUserById retrieves correct user",
+    "test": "$user = getUserById(1); return $user && isset($user['name']) && isset($user['email']);",
+    "category": "database",
+    "message": "The getUserById function should retrieve a user with the specified ID"
+  },
+  {
+    "name": "Authentication - validatePassword checks password correctly",
+    "function": "validatePassword",
+    "input": ["password123", "$2y$10$abcdefghijklmnopqrstuuWzXiONrUNlOgUWja4ZI65wqkVRpQxu"],
+    "expected": true,
+    "category": "auth",
+    "message": "The validatePassword function should verify if a password matches its hash"
+  },
+  {
+    "name": "Authentication - hashPassword produces valid hash",
+    "test": "$hash = hashPassword('test123'); return password_verify('test123', $hash);",
+    "category": "auth",
+    "message": "The hashPassword function should create a valid password hash"
+  },
+  {
+    "name": "Input Validation - sanitizeInput removes dangerous content",
+    "function": "sanitizeInput",
+    "input": "<script>alert('XSS')</script>",
+    "expected": "&lt;script&gt;alert('XSS')&lt;/script&gt;",
+    "category": "security",
+    "message": "The sanitizeInput function should convert special characters to HTML entities"
+  },
+  {
+    "name": "Session Management - createUserSession sets session variables",
+    "test": "$user = ['id' => 42, 'name' => 'Test User', 'role' => 'admin']; createUserSession($user); return isset($_SESSION['user_id']) && $_SESSION['user_id'] === 42;",
+    "category": "session",
+    "message": "The createUserSession function should set appropriate session variables"
+  },
+  {
+    "name": "Error Handling - logError records errors",
+    "test": "$logfile = 'test_error.log'; $result = logError('Test error message', $logfile); return $result === true && file_exists($logfile);",
+    "category": "errors",
+    "message": "The logError function should write error messages to the specified log file"
+  },
+  {
+    "name": "File Operations - uploadFile handles file upload",
+    "test": "$file = ['name' => 'test.txt', 'tmp_name' => __DIR__.'/test_temp.txt', 'error' => 0, 'size' => 1024]; file_put_contents($file['tmp_name'], 'test content'); $result = uploadFile($file, __DIR__.'/uploads/'); return $result && file_exists(__DIR__.'/uploads/test.txt');",
+    "category": "files",
+    "message": "The uploadFile function should move uploaded files to the destination directory"
+  },
+  {
+    "name": "Data Processing - formatDate converts timestamps to readable dates",
+    "function": "formatDate",
+    "input": "2023-05-15 14:30:00",
+    "expected": "May 15, 2023",
+    "category": "utility",
+    "message": "The formatDate function should convert database timestamps to readable date formats"
+  },
+  {
+    "name": "OOP Implementation - User class has required methods",
+    "test": "$user = new User(); return method_exists($user, 'login') && method_exists($user, 'logout') && method_exists($user, 'isLoggedIn');",
+    "category": "oop",
+    "message": "The User class should implement login, logout, and isLoggedIn methods"
+  },
+  {
+    "name": "Pagination - getPaginatedResults returns correct page",
+    "test": "$items = range(1, 50); $page2 = getPaginatedResults($items, 2, 10); return count($page2) === 10 && $page2[0] === 11;",
+    "category": "pagination",
+    "message": "The getPaginatedResults function should return the correct subset of items for the requested page"
+  },
+  {
+    "name": "Code Style - Uses proper namespaces",
+    "contains": "namespace",
+    "category": "style",
+    "message": "Your code should use PHP namespaces for organization"
+  }
+]

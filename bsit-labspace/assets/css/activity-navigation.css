@@ -1,0 +1,90 @@
+/**
+ * Activity Navigation Styles - Enhanced Security
+ */
+
+/* Make activity items look clickable */
+.activity-nav-enabled, .activity-clickable, .activity-link, .activity-item {
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    position: relative;
+}
+
+.activity-nav-enabled:hover, .activity-clickable:hover, .activity-link:hover, .activity-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Visual feedback when clicking */
+.activity-nav-enabled.active-click, .activity-clickable.active-click, .activity-link.active-click, .activity-item.active-click {
+    background-color: rgba(13, 110, 253, 0.1);
+    transform: translateY(0);
+}
+
+/* Add a subtle click indicator */
+.activity-item:not(.no-indicator)::after {
+    content: "\f35d"; /* Font Awesome external link icon */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    color: #0d6efd;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* Highlight when hovered */
+.activity-item:hover::after {
+    opacity: 1;
+}
+
+/* Make sure activity links can't be clicked directly */
+a.activity-link.direct-access {
+    pointer-events: none;
+}
+
+/* Add a wrapper that gets the clicks instead */
+.activity-link-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Make loading overlay more noticeable */
+#loading-overlay {
+    z-index: 10000 !important;
+}
+
+/* Emergency access should be hidden by default */
+.emergency-access {
+    display: none;
+}
+
+/* After unsuccessful navigation attempts, show emergency options */
+.navigation-failed .emergency-access {
+    display: block;
+}
+
+/* Ensure links in activity items work properly */
+.activity-item a:not(.activity-link),
+.activity-item button,
+.activity-item .btn {
+    position: relative;
+    z-index: 5;
+}
+
+/* Prevent text selection on activity items */
+.activity-item, .activity-link, .activity-clickable {
+    user-select: none;
+}
+
+/* Add a visual indicator for clickable items */
+.activity-item {
+    padding-right: 30px; /* Space for the click indicator */
+}
+
+/* Remove any debug-related popups that might interfere */
+#click-debug-container {
+    display: none !important;
+}

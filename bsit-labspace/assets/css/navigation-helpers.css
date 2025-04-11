@@ -1,0 +1,151 @@
+/**
+ * Navigation Helpers CSS
+ * Provides styling for navigation elements in the LabSpace system
+ */
+
+/* Direct Navigation Panel Styling */
+.direct-nav-panel {
+    transition: all 0.3s ease;
+}
+
+.direct-nav-panel:hover {
+    transform: scale(1.02);
+}
+
+.direct-nav-panel .input-group {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.direct-nav-panel .input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+}
+
+.direct-nav-panel .form-control {
+    border-left: none;
+    font-size: 0.9rem;
+}
+
+.direct-nav-panel .form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+.direct-nav-panel .btn {
+    transition: all 0.2s;
+}
+
+.direct-nav-panel .btn:hover {
+    transform: translateX(2px);
+}
+
+/* Emergency Navigation Button */
+.emergency-nav-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+    border: none;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.emergency-nav-button:hover {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+}
+
+.emergency-nav-button i {
+    font-size: 1.3rem;
+}
+
+/* Activity Quick Access Panel */
+.quick-access-panel {
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.quick-access-panel:hover {
+    box-shadow: 0 5px 20px rgba(0, 123, 255, 0.15);
+    transform: translateY(-3px);
+}
+
+.quick-access-panel .card-header {
+    background: linear-gradient(135deg, #0062cc, #007bff);
+    border-bottom: none;
+    padding: 15px 20px;
+}
+
+.quick-access-panel .card-body {
+    padding: 20px;
+}
+
+.quick-access-panel .input-group {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.quick-access-panel .form-control {
+    border: none;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+}
+
+.quick-access-panel .btn {
+    padding-left: 20px;
+    padding-right: 20px;
+    transition: all 0.2s;
+}
+
+.quick-access-panel .btn:hover {
+    transform: translateX(3px);
+}
+
+/* Activity Navigation Shortcuts */
+kbd {
+    background-color: #f8f9fa;
+    color: #495057;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    padding: 2px 5px;
+    font-size: 0.8em;
+}
+
+/* Activity ID Badge */
+.activity-id-badge {
+    background-color: #f8f9fa;
+    color: #495057;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+    transition: all 0.2s;
+}
+
+.activity-id-badge:hover {
+    background-color: #e9ecef;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.activity-id-badge i {
+    margin-right: 5px;
+    color: #007bff;
+}

@@ -1,0 +1,268 @@
+:root {
+    --primary: #092CA0;
+    --primary-light: #2e4fc7;
+    --primary-dark: #041b6e;
+    --accent: #00c3ff;
+    --accent-2: #7209b7;
+    --background: #f8f9fc;
+    --light: #f0f2f8;
+    --dark: #212529;
+    --text: #333;
+    --text-light: #6c757d;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    overflow-x: hidden;
+}
+
+/* Navbar styling */
+.navbar-labspace {
+    background-color: var(--white);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand img {
+    max-height: 40px;
+}
+
+.navbar-labspace .navbar-nav .nav-link {
+    color: var(--text);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: color 0.2s ease;
+}
+
+.navbar-labspace .navbar-nav .nav-link:hover,
+.navbar-labspace .navbar-nav .nav-link.active {
+    color: var(--primary);
+}
+
+/* Sidebar styling */
+.sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: 250px;
+    height: calc(100vh - 56px);
+    background-color: var(--white);
+    border-right: 1px solid rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: all 0.3s;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    margin-left: -250px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+    background-color: var(--light);
+    color: var(--primary);
+    border-left: 4px solid var(--primary);
+}
+
+.sidebar-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main content */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: margin 0.3s;
+}
+
+.main-content.expanded {
+    margin-left: 0;
+}
+
+/* Card styling */
+.card {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: var(--white);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+}
+
+/* Custom accent buttons */
+.btn-accent {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: var(--white);
+}
+
+.btn-accent:hover {
+    background-color: #00a8df;
+    border-color: #00a8df;
+    color: var(--white);
+}
+
+.btn-accent-2 {
+    background-color: var(--accent-2);
+    border-color: var(--accent-2);
+    color: var(--white);
+}
+
+.btn-accent-2:hover {
+    background-color: #650a9f;
+    border-color: #650a9f;
+    color: var(--white);
+}
+
+/* Form styling */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.25rem rgba(9, 44, 160, 0.25);
+}
+
+/* Loading animations */
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 20px auto;
+    border: 3px solid rgba(9, 44, 160, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.loading-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .sidebar {
+        margin-left: -250px;
+    }
+    
+    .sidebar.show {
+        margin-left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* Custom text colors */
+.text-primary {
+    color: var(--primary) !important;
+}
+
+/* Card hover effects */
+.card.hover-effect {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card.hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Progress bar customization */
+.progress-bar {
+    background-color: var(--primary);
+}
+
+/* Badge customization */
+.badge-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Pagination customization */
+.page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.page-link {
+    color: var(--primary);
+}
+
+.page-link:hover {
+    color: var(--primary-dark);
+}
+
+/* Table customization */
+.table-hover tbody tr:hover {
+    background-color: rgba(9, 44, 160, 0.05);
+}

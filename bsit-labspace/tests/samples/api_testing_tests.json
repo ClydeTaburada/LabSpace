@@ -1,0 +1,78 @@
+[
+  {
+    "name": "API - fetchData function returns promise",
+    "test": "assert(typeof fetchData === 'function' && fetchData() instanceof Promise);",
+    "category": "api",
+    "message": "The fetchData function should return a Promise object"
+  },
+  {
+    "name": "API - parseResponse handles JSON properly",
+    "function": "parseResponse",
+    "input": {"status": 200, "data": {"name": "Test"}},
+    "expected": {"name": "Test"},
+    "category": "api",
+    "message": "The parseResponse function should extract the data property from the response"
+  },
+  {
+    "name": "API - handleApiError formats error messages",
+    "function": "handleApiError",
+    "input": {"message": "Not Found", "code": 404},
+    "expected": "API Error (404): Not Found",
+    "category": "api",
+    "message": "The handleApiError function should format error messages with code and message"
+  },
+  {
+    "name": "API - createRequestOptions sets proper headers",
+    "test": "const options = createRequestOptions('GET'); assert(options.headers && options.headers['Content-Type'] === 'application/json');",
+    "category": "api",
+    "message": "The createRequestOptions function should set the Content-Type header to application/json"
+  },
+  {
+    "name": "API - createRequestOptions includes auth token",
+    "test": "const token = 'test-token'; setAuthToken(token); const options = createRequestOptions('GET'); assert(options.headers && options.headers['Authorization'] === `Bearer ${token}`);",
+    "category": "api",
+    "message": "The createRequestOptions function should include the auth token in the Authorization header"
+  },
+  {
+    "name": "API - createRequestOptions includes body for POST",
+    "test": "const data = {name: 'Test'}; const options = createRequestOptions('POST', data); assert(options.body === JSON.stringify(data));",
+    "category": "api",
+    "message": "The createRequestOptions function should stringify and include the data in the request body for POST requests"
+  },
+  {
+    "name": "API - getById constructs correct URL",
+    "test": "const resourceUrl = 'http://example.com/api/users'; const spy = {called: false, url: ''}; global.fetchData = (url) => {spy.called = true; spy.url = url; return Promise.resolve({})}; getById(resourceUrl, 123); assert(spy.called && spy.url === `${resourceUrl}/123`);",
+    "category": "api",
+    "message": "The getById function should append the ID to the resource URL"
+  },
+  {
+    "name": "API - createResource sends POST request",
+    "test": "let method = ''; global.createRequestOptions = (m) => {method = m; return {}}; global.fetchData = () => Promise.resolve({}); createResource('http://example.com/api/users', {name: 'Test'}); assert(method === 'POST');",
+    "category": "api",
+    "message": "The createResource function should use the POST method"
+  },
+  {
+    "name": "API - updateResource sends PUT request",
+    "test": "let method = ''; global.createRequestOptions = (m) => {method = m; return {}}; global.fetchData = () => Promise.resolve({}); updateResource('http://example.com/api/users', 123, {name: 'Test'}); assert(method === 'PUT');",
+    "category": "api",
+    "message": "The updateResource function should use the PUT method"
+  },
+  {
+    "name": "API - deleteResource sends DELETE request",
+    "test": "let method = ''; global.createRequestOptions = (m) => {method = m; return {}}; global.fetchData = () => Promise.resolve({}); deleteResource('http://example.com/api/users', 123); assert(method === 'DELETE');",
+    "category": "api",
+    "message": "The deleteResource function should use the DELETE method"
+  },
+  {
+    "name": "API - Has error handling for network failures",
+    "contains": "catch",
+    "category": "errors",
+    "message": "API functions should include catch blocks to handle network failures"
+  },
+  {
+    "name": "API - Uses async/await or then chains",
+    "contains": "async",
+    "category": "style",
+    "message": "Use async/await for cleaner asynchronous code"
+  }
+]

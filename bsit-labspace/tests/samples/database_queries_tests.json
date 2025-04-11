@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Query - getUserById returns user object",
+    "test": "$result = getUserById(1); return is_array($result) && isset($result['id']) && isset($result['name']);",
+    "category": "database",
+    "message": "The getUserById function should return a user array with id and name properties"
+  },
+  {
+    "name": "Query - getUserById returns null for invalid ID",
+    "test": "$result = getUserById(999999); return $result === null;",
+    "category": "database",
+    "message": "The getUserById function should return null when no user is found"
+  },
+  {
+    "name": "Query - getAllUsers returns array",
+    "test": "$result = getAllUsers(); return is_array($result);",
+    "category": "database",
+    "message": "The getAllUsers function should return an array of users"
+  },
+  {
+    "name": "Query - searchUsers finds matching users",
+    "test": "$result = searchUsers('admin'); return is_array($result) && count($result) > 0;",
+    "category": "database",
+    "message": "The searchUsers function should return matching users for the search term 'admin'"
+  },
+  {
+    "name": "Query - insertUser adds new user",
+    "test": "$userData = ['name' => 'Test User', 'email' => 'test'.time().'@example.com', 'password' => 'password']; $userId = insertUser($userData); return $userId > 0;",
+    "category": "database",
+    "message": "The insertUser function should insert a new user and return the new user ID"
+  },
+  {
+    "name": "Query - updateUser modifies existing user",
+    "test": "$newName = 'Updated Name '.time(); $result = updateUser(1, ['name' => $newName]); $user = getUserById(1); return $result && $user['name'] === $newName;",
+    "category": "database",
+    "message": "The updateUser function should update the user and return true"
+  },
+  {
+    "name": "Query - deleteUser removes user",
+    "test": "$userData = ['name' => 'User to delete', 'email' => 'delete'.time().'@example.com', 'password' => 'password']; $userId = insertUser($userData); $result = deleteUser($userId); return $result && getUserById($userId) === null;",
+    "category": "database",
+    "message": "The deleteUser function should remove the user and return true"
+  },
+  {
+    "name": "Security - getUserById uses parameterized query",
+    "contains": "prepare",
+    "category": "security",
+    "message": "The getUserById function should use prepared statements for SQL injection protection"
+  },
+  {
+    "name": "Security - insertUser escapes data",
+    "contains": "bindParam",
+    "category": "security",
+    "message": "The insertUser function should use parameter binding for SQL injection protection"
+  },
+  {
+    "name": "Security - updateUser sanitizes input",
+    "contains": "bindValue",
+    "category": "security",
+    "message": "The updateUser function should sanitize input data"
+  },
+  {
+    "name": "Code style - Uses PDO instead of mysqli",
+    "contains": "new PDO",
+    "category": "style",
+    "message": "Use PDO for database connections for better security and portability"
+  },
+  {
+    "name": "Error handling - Has try-catch blocks",
+    "contains": "try {",
+    "category": "errors",
+    "message": "Database functions should include try-catch blocks for error handling"
+  }
+]

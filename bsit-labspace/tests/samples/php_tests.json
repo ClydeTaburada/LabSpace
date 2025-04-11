@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Function 'addNumbers' works correctly",
+    "function": "addNumbers",
+    "input": [5, 3],
+    "expected": 8,
+    "message": "The addNumbers function should return the sum of two numbers"
+  },
+  {
+    "name": "Function 'multiplyNumbers' works correctly",
+    "function": "multiplyNumbers",
+    "input": [4, 3],
+    "expected": 12,
+    "message": "The multiplyNumbers function should return the product of two numbers"
+  },
+  {
+    "name": "Function 'capitalizeString' works correctly",
+    "function": "capitalizeString",
+    "input": "hello world",
+    "expected": "Hello world",
+    "message": "The capitalizeString function should capitalize the first letter"
+  },
+  {
+    "name": "Function 'countCharacters' works correctly",
+    "function": "countCharacters",
+    "input": "hello",
+    "expected": 5,
+    "message": "The countCharacters function should return the number of characters"
+  },
+  {
+    "name": "Function 'isEvenNumber' works correctly for even numbers",
+    "function": "isEvenNumber",
+    "input": 6,
+    "expected": true,
+    "message": "The isEvenNumber function should return true for even numbers"
+  },
+  {
+    "name": "Function 'isEvenNumber' works correctly for odd numbers",
+    "function": "isEvenNumber",
+    "input": 7,
+    "expected": false,
+    "message": "The isEvenNumber function should return false for odd numbers"
+  },
+  {
+    "name": "Custom test for checking array manipulation",
+    "test": "$arr = [3, 1, 4, 2]; $sorted = sortArray($arr); return $sorted[0] === 1 && $sorted[1] === 2 && $sorted[2] === 3 && $sorted[3] === 4;",
+    "message": "The sortArray function should sort an array in ascending order"
+  },
+  {
+    "name": "Function includes required code",
+    "contains": "foreach",
+    "message": "Your code should use a foreach loop"
+  }
+]

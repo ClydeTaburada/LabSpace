@@ -1,0 +1,76 @@
+[
+  {
+    "name": "Mobile First - Uses viewport meta tag",
+    "selector": "meta[name='viewport']",
+    "exists": true,
+    "category": "responsive",
+    "message": "Include a viewport meta tag to ensure proper responsive behavior"
+  },
+  {
+    "name": "Mobile First - Viewport content is correct",
+    "selector": "meta[name='viewport']",
+    "attribute": "content",
+    "contains": "width=device-width, initial-scale=1",
+    "category": "responsive",
+    "message": "The viewport meta tag should include width=device-width and initial-scale=1"
+  },
+  {
+    "name": "Media Queries - Uses mobile breakpoint",
+    "selector": "@media",
+    "contains": "max-width: 768px",
+    "category": "responsive",
+    "message": "Include a media query for mobile devices (max-width: 768px)"
+  },
+  {
+    "name": "Media Queries - Uses tablet breakpoint",
+    "selector": "@media",
+    "contains": "min-width: 768px",
+    "category": "responsive",
+    "message": "Include a media query for tablets (min-width: 768px)"
+  },
+  {
+    "name": "Media Queries - Uses desktop breakpoint",
+    "selector": "@media",
+    "contains": "min-width: 1024px",
+    "category": "responsive",
+    "message": "Include a media query for desktop (min-width: 1024px)"
+  },
+  {
+    "name": "Layout - Uses fluid container",
+    "selector": ".container",
+    "attribute": "style",
+    "contains": "max-width",
+    "category": "responsive",
+    "message": "Container should have a max-width instead of fixed width"
+  },
+  {
+    "name": "Images - Uses responsive images",
+    "selector": "img",
+    "attribute": "style",
+    "contains": "max-width: 100%",
+    "category": "responsive",
+    "message": "Images should have max-width: 100% to ensure they scale properly"
+  },
+  {
+    "name": "Typography - Uses relative units",
+    "selector": "body",
+    "property": "font-size",
+    "contains": "rem",
+    "category": "responsive",
+    "message": "Use relative units like rem for text sizes"
+  },
+  {
+    "name": "Navigation - Has mobile menu toggle",
+    "selector": ".mobile-menu-toggle, .hamburger-menu, .nav-toggle",
+    "exists": true,
+    "category": "responsive",
+    "message": "Include a toggle button for mobile navigation"
+  },
+  {
+    "name": "Flexbox/Grid - Uses flexible layout system",
+    "selector": ".row, .grid",
+    "exists": true,
+    "category": "responsive",
+    "message": "Use a flexible layout system (like grid or flexbox) for responsive designs"
+  }
+]
