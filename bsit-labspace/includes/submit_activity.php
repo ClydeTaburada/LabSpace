@@ -48,10 +48,11 @@ try {
         throw new Exception("You are not enrolled in this class");
     }
     
-    // Submit the code
+    // Use the submitActivityCode function from activity_functions.php
+    // This is the correct implementation that uses activity_submissions table
     $result = submitActivityCode($activityId, $_SESSION['user_id'], $code, $language);
     
-    if ($result) {
+    if ($result['success']) {
         // Return success response
         echo json_encode([
             'success' => true,
@@ -59,7 +60,7 @@ try {
             'activity_id' => $activityId
         ]);
     } else {
-        throw new Exception("Failed to submit code");
+        throw new Exception($result['message'] ?? "Failed to submit code");
     }
 } catch (Exception $e) {
     // Discard any output before the error
@@ -83,7 +84,7 @@ ob_end_flush();
 function isStudentEnrolledInClass($studentId, $classId) {
     try {
         $pdo = getDbConnection();
-        $stmt = $pdo->prepare("SELECT 1 FROM enrollments WHERE student_id = ? AND class_id = ?");
+        $stmt = $pdo->prepare("SELECT 1 FROM class_enrollments WHERE student_id = ? AND class_id = ?");
         $stmt->execute([$studentId, $classId]);
         return $stmt->fetchColumn() !== false;
     } catch (PDOException $e) {
@@ -101,23 +102,25 @@ function submitActivityCode($activityId, $studentId, $code, $language) {
         $pdo = getDbConnection();
         
         // Check if submission already exists
-        $stmt = $pdo->prepare("SELECT id FROM submissions WHERE activity_id = ? AND student_id = ?");
+        $stmt = $pdo->prepare("SELECT id FROM activity_submissions WHERE activity_id = ? AND student_id = ?");
         $stmt->execute([$activityId, $studentId]);
         $existingSubmission = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($existingSubmission) {
             // Update existing submission
-            $stmt = $pdo->prepare("UPDATE submissions SET code = ?, language = ?, submitted_at = NOW() WHERE id = ?");
-            return $stmt->execute([$code, $language, $existingSubmission['id']]);
+            $stmt = $pdo->prepare("UPDATE activity_submissions SET code = ?, language = ?, submitted_at = NOW() WHERE id = ?");
+            $success = $stmt->execute([$code, $language, $existingSubmission['id']]);
+            return ['success' => $success, 'message' => $success ? null : "Failed to update submission"];
         } else {
             // Create new submission
-            $stmt = $pdo->prepare("INSERT INTO submissions (activity_id, student_id, code, language, submitted_at) VALUES (?, ?, ?, ?, NOW())");
-            return $stmt->execute([$activityId, $studentId, $code, $language]);
+            $stmt = $pdo->prepare("INSERT INTO activity_submissions (activity_id, student_id, code, language, submitted_at) VALUES (?, ?, ?, ?, NOW())");
+            $success = $stmt->execute([$activityId, $studentId, $code, $language]);
+            return ['success' => $success, 'message' => $success ? null : "Failed to create submission"];
         }
     } catch (PDOException $e) {
         // Log the error but don't expose database details
         error_log("Error submitting code: " . $e->getMessage());
-        return false;
+        return ['success' => false, 'message' => "Database error"];
     }
 }
 ?>

@@ -26,24 +26,24 @@ try {
     
     // Verify student enrollment
     $pdo = getDbConnection();
-    $stmt = $pdo->prepare("SELECT 1 FROM enrollments WHERE student_id = ? AND class_id = ?");
+    $stmt = $pdo->prepare("SELECT 1 FROM class_enrollments WHERE student_id = ? AND class_id = ?");
     $stmt->execute([$_SESSION['user_id'], $activity['class_id']]);
     if (!$stmt->fetch()) {
         throw new Exception("You are not enrolled in this class");
     }
     
-    // Process submission
-    $stmt = $pdo->prepare("SELECT id FROM submissions WHERE activity_id = ? AND student_id = ?");
+    // Process submission - FIXED: Changed table from 'submissions' to 'activity_submissions'
+    $stmt = $pdo->prepare("SELECT id FROM activity_submissions WHERE activity_id = ? AND student_id = ?");
     $stmt->execute([$activityId, $_SESSION['user_id']]);
     $existingSubmission = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($existingSubmission) {
         // Update existing submission
-        $stmt = $pdo->prepare("UPDATE submissions SET code = ?, language = ?, submitted_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE activity_submissions SET code = ?, language = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$code, $language, $existingSubmission['id']]);
     } else {
         // Create new submission
-        $stmt = $pdo->prepare("INSERT INTO submissions (activity_id, student_id, code, language, submitted_at) 
+        $stmt = $pdo->prepare("INSERT INTO activity_submissions (activity_id, student_id, code, language, submission_date) 
                               VALUES (?, ?, ?, ?, NOW())");
         $stmt->execute([$activityId, $_SESSION['user_id'], $code, $language]);
     }

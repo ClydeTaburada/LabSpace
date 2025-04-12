@@ -43,20 +43,23 @@ try {
     }
     
     // Check if submission already exists
-    $stmt = $pdo->prepare("SELECT id FROM submissions WHERE activity_id = ? AND student_id = ?");
+    $stmt = $pdo->prepare("SELECT id FROM activity_submissions WHERE activity_id = ? AND student_id = ?");
     $stmt->execute([$activityId, $_SESSION['user_id']]);
     $existingSubmission = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($existingSubmission) {
         // Update existing submission
-        $stmt = $pdo->prepare("UPDATE submissions SET code = ?, language = ?, submitted_at = NOW() WHERE id = ?");
+        $stmt = $pdo->prepare("UPDATE activity_submissions SET code = ?, language = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$code, $language, $existingSubmission['id']]);
     } else {
         // Create new submission
-        $stmt = $pdo->prepare("INSERT INTO submissions (activity_id, student_id, code, language, submitted_at) 
+        $stmt = $pdo->prepare("INSERT INTO activity_submissions (activity_id, student_id, code, language, submission_date) 
                               VALUES (?, ?, ?, ?, NOW())");
         $stmt->execute([$activityId, $_SESSION['user_id'], $code, $language]);
     }
+    
+    // Update student progress after submission
+    updateStudentProgress($_SESSION['user_id'], $activityId);
     
     // Clear buffer and return success
     ob_end_clean();
