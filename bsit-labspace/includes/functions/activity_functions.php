@@ -48,6 +48,30 @@ function getModuleActivities($moduleId, $teacherId = null) {
 }
 
 /**
+ * Get all activities for a specific module
+ * 
+ * @param int $moduleId The module ID
+ * @return array Array of activities
+ */
+function getActivitiesByModuleId($moduleId) {
+    $pdo = getDbConnection();
+    if (!$pdo) {
+        return [];
+    }
+    
+    try {
+        $sql = "SELECT * FROM activities WHERE module_id = ? ORDER BY created_at ASC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$moduleId]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error getting activities by module ID: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
  * Get an activity by ID
  * 
  * @param int $activityId Activity ID
@@ -425,6 +449,37 @@ function getPublishedActivities($moduleId) {
 }
 
 /**
+ * Fetch recent submissions for a student.
+ *
+ * @param int $studentId The ID of the student.
+ * @param int $limit The number of recent submissions to fetch.
+ * @return array An array of recent submissions.
+ */
+function getStudentRecentSubmissions($studentId, $limit = 5) {
+    $pdo = getDbConnection(); // Use the existing database connection function
+    if (!$pdo) {
+        error_log('Database connection failed in getStudentRecentSubmissions');
+        return [];
+    }
+
+    try {
+        $query = "SELECT a.title AS activity_title, s.updated_at 
+                  FROM submissions s
+                  JOIN activities a ON s.activity_id = a.id
+                  WHERE s.student_id = ?
+                  ORDER BY s.updated_at DESC
+                  LIMIT ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$studentId, $limit]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching recent submissions: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
  * Get upcoming activity deadlines for a student
  * 
  * @param int $studentId Student ID
@@ -438,6 +493,8 @@ function getUpcomingDeadlines($studentId, $limit = 5) {
     }
     
     try {
+        $currentDate = date('Y-m-d');
+        
         $query = "
             SELECT 
                 a.id, a.title, a.due_date, a.activity_type,
@@ -455,14 +512,14 @@ function getUpcomingDeadlines($studentId, $limit = 5) {
                 a.is_published = 1 AND
                 m.is_published = 1 AND
                 a.due_date IS NOT NULL AND
-                a.due_date >= CURRENT_DATE
+                a.due_date >= ?
             ORDER BY 
                 a.due_date ASC
             LIMIT ?
         ";
         
         $stmt = $pdo->prepare($query);
-        $stmt->execute([$studentId, $limit]);
+        $stmt->execute([$studentId, $currentDate, $limit]);
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -553,6 +610,59 @@ function getActivityBadgeClass($activityType) {
         default:
             return 'secondary';
     }
+}
+
+/**
+ * Check if an activity is overdue
+ * 
+ * @param string|array $activity Activity array or due date string
+ * @return bool True if activity is overdue, false otherwise
+ */
+function isActivityOverdue($activity) {
+    // If we received the full activity array
+    if (is_array($activity)) {
+        // Check if due date exists
+        if (empty($activity['due_date'])) {
+            return false; // No due date means never overdue
+        }
+        $dueDate = $activity['due_date'];
+    } else {
+        // We received just the due date string
+        $dueDate = $activity;
+    }
+    
+    // Check if due date is in the past
+    $dueTimestamp = strtotime($dueDate);
+    $currentTimestamp = time();
+    
+    return ($dueTimestamp < $currentTimestamp);
+}
+
+/**
+ * Get CSS class for due date display based on overdue status
+ * 
+ * @param string $dueDate Due date string
+ * @return string CSS class for styling
+ */
+function getDueDateStatusClass($dueDate) {
+    if (empty($dueDate)) {
+        return 'text-muted'; // No due date
+    }
+    
+    if (isActivityOverdue($dueDate)) {
+        return 'text-danger fw-bold'; // Overdue - red and bold
+    }
+    
+    // Check if due date is approaching (within 2 days)
+    $dueTimestamp = strtotime($dueDate);
+    $currentTimestamp = time();
+    $twoDaysInSeconds = 2 * 24 * 60 * 60;
+    
+    if (($dueTimestamp - $currentTimestamp) < $twoDaysInSeconds) {
+        return 'text-warning fw-bold'; // Approaching deadline - yellow and bold
+    }
+    
+    return 'text-success'; // Due date is far away - green
 }
 
 /**
@@ -701,6 +811,9 @@ function submitActivityCode($activityId, $studentId, $code, $language) {
             ");
             $stmt->execute([$activityId, $studentId, $code, $language, $autoGrade, $testResults]);
         }
+        
+        // Update student progress
+        updateStudentProgress($studentId, $activityId);
         
         // Commit transaction
         $pdo->commit();
@@ -981,4 +1094,61 @@ function getSubmissionsForActivity($activityId) {
     
     $stmt->close();
     return $submissions;
+}
+
+/**
+ * Update student progress after a submission
+ * 
+ * @param int $studentId Student ID
+ * @param int $activityId Activity ID
+ * @return bool True if progress updated successfully, false otherwise
+ */
+function updateStudentProgress($studentId, $activityId) {
+    $pdo = getDbConnection();
+    if (!$pdo) {
+        return false;
+    }
+
+    try {
+        // Get the class ID and module ID from the activity
+        $stmt = $pdo->prepare("
+            SELECT m.class_id, a.module_id 
+            FROM activities a
+            JOIN modules m ON a.module_id = m.id
+            WHERE a.id = ?
+        ");
+        $stmt->execute([$activityId]);
+        $activityData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$activityData) {
+            return false;
+        }
+
+        $classId = $activityData['class_id'];
+        $moduleId = $activityData['module_id'];
+
+        // Check if the student is enrolled in the class
+        $stmt = $pdo->prepare("
+            SELECT id 
+            FROM class_enrollments 
+            WHERE student_id = ? AND class_id = ?
+        ");
+        $stmt->execute([$studentId, $classId]);
+        if (!$stmt->fetch()) {
+            return false;
+        }
+
+        // Update progress for the module
+        $stmt = $pdo->prepare("
+            INSERT INTO student_module_progress (student_id, module_id, class_id, last_updated)
+            VALUES (?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE last_updated = NOW()
+        ");
+        $stmt->execute([$studentId, $moduleId, $classId]);
+
+        return true;
+    } catch (PDOException $e) {
+        error_log('Error updating student progress: ' . $e->getMessage());
+        return false;
+    }
 }

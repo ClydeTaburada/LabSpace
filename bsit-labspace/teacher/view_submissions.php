@@ -47,7 +47,7 @@ function goToActivity($activityId) {
 // Add a button for emergency navigation
 $emergencyNavButton = '<a href="../emergency_navigation.php" class="btn btn-warning btn-sm">Emergency Navigation</a>';
 
-// Get submissions for this activity
+// Fetch submissions for the activity
 $submissions = getSubmissionsForActivity($activityId);
 ?>
 
@@ -113,84 +113,39 @@ $submissions = getSubmissionsForActivity($activityId);
             </div>
             <div class="card-body">
                 <?php if (empty($submissions)): ?>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> No submissions for this activity yet.
-                    </div>
+                    <p class="text-muted">No submissions found for this activity.</p>
                 <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Submission Date</th>
+                                <th>Grade</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($submissions as $submission): ?>
                                 <tr>
-                                    <th>Student</th>
-                                    <th>Submission Date</th>
-                                    <th>Auto-Grade</th>
-                                    <th>Final Grade</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <td><?php echo htmlspecialchars($submission['student_name']); ?></td>
+                                    <td><?php echo date('M j, Y g:i A', strtotime($submission['submission_date'])); ?></td>
+                                    <td><?php echo $submission['graded'] ? $submission['grade'] . '%' : 'Pending'; ?></td>
+                                    <td>
+                                        <a href="view_submission.php?id=<?php echo $submission['id']; ?>" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($submissions as $submission): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($submission['student_name']); ?></td>
-                                        <td><?php echo date('M j, Y g:i a', strtotime($submission['submission_date'])); ?></td>
-                                        <td>
-                                            <?php if ($submission['auto_grade'] !== null): ?>
-                                                <span class="badge bg-info"><?php echo $submission['auto_grade']; ?>%</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-secondary">N/A</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <?php if ($submission['graded']): ?>
-                                                <span class="badge bg-success"><?php echo $submission['grade']; ?>%</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-warning text-dark">Not graded</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <?php
-                                            $submissionStatus = 'On time';
-                                            $statusClass = 'success';
-                                            
-                                            if ($activity['due_date'] && strtotime($submission['submission_date']) > strtotime($activity['due_date'])) {
-                                                $submissionStatus = 'Late';
-                                                $statusClass = 'danger';
-                                            }
-                                            ?>
-                                            <span class="badge bg-<?php echo $statusClass; ?>"><?php echo $submissionStatus; ?></span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="view_submission.php?id=<?php echo $submission['id']; ?>" class="btn btn-primary">
-                                                    <i class="fas fa-eye"></i> View
-                                                </a>
-                                                <?php if (!$submission['graded']): ?>
-                                                <a href="grade_submission.php?id=<?php echo $submission['id']; ?>" class="btn btn-success">
-                                                    <i class="fas fa-check"></i> Grade
-                                                </a>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 
+    <!-- JavaScript resources -->
     <script src="../assets/js/bootstrap.bundle.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize any components
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    });
-    </script>
+    <script src="../assets/js/jquery-3.6.0.min.js"></script>
 </body>
 </html>

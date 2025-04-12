@@ -47,45 +47,6 @@
                 overlay.classList.remove('show');
             }
             
-            // Ensure all activity items are properly clickable with direct navigation
-            document.querySelectorAll('.activity-item, [data-activity-id]').forEach(function(item) {
-                if (!item.classList.contains('direct-loader-processed')) {
-                    console.log('[Footer] Found activity item without direct loader, adding handlers');
-                    
-                    // Get activity ID
-                    const activityId = item.dataset.activityId || 
-                                      item.querySelector('[data-activity-id]')?.dataset.activityId;
-                    
-                    if (activityId) {
-                        item.addEventListener('click', function(e) {
-                            if (!e.target.closest('a, button')) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                
-                                // Determine the proper URL
-                                const isStudent = window.location.pathname.indexOf('/student/') >= 0;
-                                const isTeacher = window.location.pathname.indexOf('/teacher/') >= 0;
-                                
-                                let url;
-                                if (isStudent) {
-                                    url = 'view_activity.php?id=' + activityId;
-                                } else if (isTeacher) {
-                                    url = 'edit_activity.php?id=' + activityId;
-                                } else {
-                                    url = '../student/view_activity.php?id=' + activityId;
-                                }
-                                
-                                // Navigate directly
-                                window.location.href = url;
-                            }
-                        });
-                        
-                        item.classList.add('direct-loader-processed');
-                        item.style.cursor = 'pointer';
-                    }
-                }
-            });
-            
             // Disable any debug containers that might interfere
             const debugContainer = document.getElementById('click-debug-container');
             if (debugContainer) {
@@ -93,50 +54,66 @@
             }
         }, 2000);
     });
-    </script>
-    
-    <script>
-    // Ensure all activity items are properly clickable
+
+    // Use ActivityManager for navigation if available
     document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-            document.querySelectorAll('.activity-item, [data-activity-id]').forEach(function(item) {
-                if (!item.classList.contains('reliable-click-processed')) {
-                    console.log('[Footer] Found activity item without reliable click handler, adding one');
-                    
-                    // Get activity ID
-                    const activityId = item.dataset.activityId || 
-                                      item.querySelector('[data-activity-id]')?.dataset.activityId;
-                    
-                    if (activityId) {
-                        item.addEventListener('click', function(e) {
-                            if (!e.target.closest('a:not(.activity-link), button:not(.activity-btn)')) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                
-                                // Determine the proper URL
-                                const isStudent = window.location.pathname.indexOf('/student/') >= 0;
-                                const isTeacher = window.location.pathname.indexOf('/teacher/') >= 0;
-                                
-                                let url;
-                                if (isStudent) {
-                                    url = 'view_activity.php?id=' + activityId;
-                                } else if (isTeacher) {
-                                    url = 'edit_activity.php?id=' + activityId;
-                                } else {
-                                    url = '../direct_activity.php?id=' + activityId;
-                                }
-                                
-                                // Navigate directly
-                                window.location.href = url;
-                            }
-                        }, true);
-                        
-                        item.classList.add('reliable-click-processed');
-                        item.style.cursor = 'pointer';
+        if (window.ActivityManager) {
+            console.log('[Footer] ActivityManager handling activity clicks, skipping redundant handlers');
+            return;
+        }
+        
+        console.log('[Footer] ActivityManager not found, using fallback handlers');
+        
+        // Only add click handlers if ActivityManager is not available
+        document.querySelectorAll('.activity-item, [data-activity-id]').forEach(function(item) {
+            if (item.classList.contains('reliable-click-processed') || 
+                item.classList.contains('activity-manager-processed') || 
+                item.classList.contains('activity-click-processed')) {
+                return;
+            }
+
+            const activityId = item.dataset.activityId || 
+                              item.querySelector('[data-activity-id]')?.dataset.activityId;
+
+            if (activityId) {
+                item.addEventListener('click', function(e) {
+                    if (e.target.closest('a, button')) {
+                        return;
                     }
-                }
-            });
-        }, 500);
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    console.log('[Footer] Navigating to activity ID:', activityId);
+
+                    // Determine the proper URL
+                    const isStudent = window.location.pathname.indexOf('/student/') >= 0;
+                    const isTeacher = window.location.pathname.indexOf('/teacher/') >= 0;
+                    
+                    let url;
+                    if (isStudent) {
+                        url = 'view_activity.php?id=' + activityId;
+                    } else if (isTeacher) {
+                        url = 'view_activity.php?id=' + activityId;
+                    } else {
+                        url = '../direct_activity.php?id=' + activityId;
+                    }
+                    
+                    // Store the ID for emergency recovery
+                    try {
+                        localStorage.setItem('last_activity_id', activityId);
+                        sessionStorage.setItem('last_activity_id', activityId);
+                    } catch (e) {
+                        console.error('[Footer] Storage error:', e);
+                    }
+                    
+                    window.location.href = url;
+                });
+
+                item.style.cursor = 'pointer';
+                item.classList.add('reliable-click-processed');
+            }
+        });
     });
     </script>
     

@@ -1,79 +1,83 @@
 <?php
-session_start();
-require_once '../database.php';
-require_once 'auth.php';
-require_once 'activity_functions.php';
+// Force content type to be JSON to prevent HTML errors
+header('Content-Type: application/json');
 
-// Ensure this script only handles POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405); // Method Not Allowed
-    echo json_encode(['error' => 'Only POST requests are allowed']);
-    exit;
-}
-
-// Ensure user is logged in and is a student
-if (!isLoggedIn() || !hasRole('student')) {
-    http_response_code(401); // Unauthorized
-    echo json_encode(['error' => 'Authentication required']);
-    exit;
-}
-
-// Get the JSON data from the request
-$data = json_decode(file_get_contents('php://input'), true);
-
-// Verify required fields are present
-if (!isset($data['activity_id']) || !isset($data['code'])) {
-    http_response_code(400); // Bad Request
-    echo json_encode(['error' => 'Missing required fields']);
-    exit;
-}
-
-// Sanitize inputs
-$activityId = (int)$data['activity_id'];
-$code = $data['code'];
-$language = isset($data['language']) ? $data['language'] : 'javascript';
-$userId = $_SESSION['user_id'];
-
-// Verify user has access to this activity
-$activity = getStudentActivity($activityId, $userId);
-if (!$activity) {
-    http_response_code(403); // Forbidden
-    echo json_encode(['error' => 'You do not have access to this activity']);
-    exit;
-}
+// Start output buffering to catch any errors
+ob_start();
 
 try {
-    // Connect to database
-    $db = getDbConnection();
+    session_start();
+    require_once '../db/config.php';
+    require_once 'activity_functions.php';
     
-    // Check if a submission already exists
-    $stmt = $db->prepare("SELECT * FROM submissions WHERE activity_id = ? AND student_id = ?");
-    $stmt->bind_param("ii", $activityId, $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        throw new Exception("You must be logged in to submit code");
+    }
     
-    if ($result->num_rows > 0) {
+    // Get input
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true);
+    
+    // Validate input
+    if (!isset($data['activity_id']) || !isset($data['code'])) {
+        throw new Exception("Missing required fields");
+    }
+    
+    $activityId = (int)$data['activity_id'];
+    $code = $data['code'];
+    $language = isset($data['language']) ? $data['language'] : 'javascript';
+    
+    // Get activity details to verify access
+    $activity = getActivityById($activityId);
+    if (!$activity) {
+        throw new Exception("Activity not found");
+    }
+    
+    // Verify student enrollment
+    $pdo = getDbConnection();
+    $stmt = $pdo->prepare("SELECT 1 FROM class_enrollments WHERE student_id = ? AND class_id = ?");
+    $stmt->execute([$_SESSION['user_id'], $activity['class_id']]);
+    if (!$stmt->fetch()) {
+        throw new Exception("You are not enrolled in this class");
+    }
+    
+    // Check if submission already exists
+    $stmt = $pdo->prepare("SELECT id FROM submissions WHERE activity_id = ? AND student_id = ?");
+    $stmt->execute([$activityId, $_SESSION['user_id']]);
+    $existingSubmission = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($existingSubmission) {
         // Update existing submission
-        $stmt = $db->prepare("UPDATE submissions SET code = ?, language = ?, submission_date = NOW(), status = 'submitted' WHERE activity_id = ? AND student_id = ?");
-        $stmt->bind_param("ssii", $code, $language, $activityId, $userId);
+        $stmt = $pdo->prepare("UPDATE submissions SET code = ?, language = ?, submitted_at = NOW() WHERE id = ?");
+        $stmt->execute([$code, $language, $existingSubmission['id']]);
     } else {
         // Create new submission
-        $stmt = $db->prepare("INSERT INTO submissions (activity_id, student_id, code, language, submission_date, status) VALUES (?, ?, ?, ?, NOW(), 'submitted')");
-        $stmt->bind_param("iiss", $activityId, $userId, $code, $language);
+        $stmt = $pdo->prepare("INSERT INTO submissions (activity_id, student_id, code, language, submitted_at) 
+                              VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([$activityId, $_SESSION['user_id'], $code, $language]);
     }
     
-    if ($stmt->execute()) {
-        // Record the activity for analytics
-        recordStudentAction($userId, 'submission', $activityId);
-        
-        // Return success response
-        echo json_encode(['success' => true, 'message' => 'Code submitted successfully']);
-    } else {
-        throw new Exception("Database error: " . $stmt->error);
-    }
+    // Clear buffer and return success
+    ob_end_clean();
+    echo json_encode([
+        'success' => true,
+        'message' => 'Code submitted successfully'
+    ]);
     
 } catch (Exception $e) {
-    http_response_code(500); // Internal Server Error
-    echo json_encode(['error' => 'Failed to submit code: ' . $e->getMessage()]);
+    // Clear buffer and return error
+    ob_end_clean();
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
+} catch (Error $e) {
+    // Handle PHP errors
+    ob_end_clean();
+    echo json_encode([
+        'success' => false,
+        'error' => 'PHP Error: ' . $e->getMessage()
+    ]);
 }
 ?>

@@ -139,50 +139,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Improved activity click functionality
-    document.querySelectorAll('.activity-item').forEach(activity => {
-        activity.addEventListener('click', function(e) {
-            // Don't handle if clicking on a nested clickable element
-            if (e.target.closest('a:not(.activity-link), button')) {
+    // Consolidate activity click handlers
+    console.log('[Script] Checking for ActivityManager...');
+    
+    // Only add activity click handlers if ActivityManager is not available
+    if (!window.ActivityManager) {
+        console.log('[Script] ActivityManager not found, using fallback handlers');
+        document.querySelectorAll('.activity-item, [data-activity-id]').forEach(activity => {
+            if (activity.classList.contains('activity-click-processed') || 
+                activity.classList.contains('activity-manager-processed')) {
                 return;
             }
-            
-            // Get activity ID and URL
-            const activityId = this.dataset.activityId || 
-                             this.querySelector('[data-activity-id]')?.dataset.activityId;
-            
+
+            const activityId = activity.dataset.activityId || 
+                              activity.querySelector('[data-activity-id]')?.dataset.activityId;
+
             if (activityId) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Visual feedback that item was clicked
-                this.classList.add('active-click');
-                
-                // Show loading state
-                showLoading('Loading activity...');
-                
-                // Use the global navigation function instead of direct navigation
-                if (window.navigateToActivity) {
-                    window.navigateToActivity(activityId);
-                } else {
-                    // Fallback to standard navigation
-                    const isStudent = window.location.pathname.indexOf('/student/') >= 0;
-                    const isTeacher = window.location.pathname.indexOf('/teacher/') >= 0;
-                    
-                    let path = 'view_activity.php?id=' + activityId;
-                    if (isTeacher) {
-                        path = 'edit_activity.php?id=' + activityId;
+                activity.addEventListener('click', function(e) {
+                    if (!e.target.closest('a, button')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log(`[Script] Navigating to activity ID: ${activityId}`);
+                        window.location.href = `view_activity.php?id=${activityId}`;
                     }
-                    
-                    window.location.href = path;
-                }
+                });
+
+                activity.style.cursor = 'pointer';
+                activity.classList.add('activity-click-processed');
             }
         });
-        
-        // Add cursor pointer to show it's clickable
-        activity.classList.add('clickable-card');
-    });
-    
+    } else {
+        console.log('[Script] ActivityManager found, skipping duplicate handlers');
+    }
+
     // Detect screen size changes for responsive adjustments
     function handleScreenSizeChange() {
         const isMobile = window.innerWidth < 768;

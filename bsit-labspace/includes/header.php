@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=no">
     <title><?php echo $pageTitle ?? 'BSIT LabSpace'; ?></title>
     
-    <!-- Emergency navigation -->
-    <script src="<?php echo getBaseUrl(); ?>assets/js/emergency-navigation.js"></script>
-    
     <!-- Google Fonts - Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,73 +16,16 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo getBaseUrl(); ?>assets/css/style.css">
     <link rel="stylesheet" href="<?php echo getBaseUrl(); ?>assets/css/theme.css">
-    <link rel="stylesheet" href="<?php echo getBaseUrl(); ?>assets/css/navigation-helpers.css">
+    <!-- Activity Manager - centralized activity navigation -->
+    <script src="<?php echo getBaseUrl(); ?>assets/js/activity-manager.js"></script>
     
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="<?php echo getBaseUrl(); ?>assets/css/style.css">
-    <link rel="stylesheet" href="<?php echo getBaseUrl(); ?>assets/css/activity-clickable.css">
+    <!-- Activity Recovery System -->
+    <script src="<?php echo getBaseUrl(); ?>assets/js/activity-recovery.js"></script>
     
     <!-- Custom JavaScript -->
     <script src="<?php echo getBaseUrl(); ?>assets/js/functions.js"></script>
+    <!-- Legacy scripts - will be gradually replaced -->
     <script src="<?php echo getBaseUrl(); ?>assets/js/activity-navigator.js"></script>
-    <script src="<?php echo getBaseUrl(); ?>assets/js/activity-helpers.js"></script>
-    <!-- Add navigation core JS -->
-    <script src="<?php echo getBaseUrl(); ?>assets/js/navigation-core.js"></script>
-    <script src="<?php echo getBaseUrl(); ?>assets/js/activity-direct-access.js"></script>
-    
-    <!-- Add emergency activity access -->
-    <?php include_once dirname(__FILE__) . '/activity-emergency-access.php'; ?>
-    
-    <!-- Activity navigation scripts -->
-    <script src="<?php echo getBaseUrl(); ?>assets/js/activity-reliable-click.js"></script>
-    <script src="<?php echo getBaseUrl(); ?>assets/js/direct-activity-loader.js"></script>
-    
-    <!-- Critical navigation fix immediately available -->
-    <script>
-    function emergencyGo(activityId) {
-        try {
-            // Use our improved navigation function
-            if (window.navigateToActivity) {
-                navigateToActivity(activityId);
-                return;
-            }
-            
-            // Legacy fallback if function not available
-            localStorage.setItem('last_activity_id', activityId);
-            sessionStorage.setItem('last_activity_id', activityId);
-            
-            // Try multiple navigation approaches for reliability
-            window.location.href = 'view_activity.php?id=' + activityId;
-            
-            setTimeout(() => {
-                window.location.replace('view_activity.php?id=' + activityId);
-            }, 300);
-        } catch(e) {
-            console.error('Navigation error:', e);
-            // Fallback to emergency mode
-            window.location.href = '../emergency_activity.php?id=' + activityId;
-        }
-    }
-    
-    // Force hide any stuck loading overlay
-    function forceHideLoading() {
-        console.log('[Header Emergency] Force hiding loading overlay');
-        document.getElementById('loading-overlay')?.classList.remove('show');
-    }
-    
-    // One-click emergency access button
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add keyboard shortcut for emergency navigation
-        document.addEventListener('keydown', function(e) {
-            // Alt+E for emergency mode
-            if (e.altKey && e.key.toLowerCase() === 'e') {
-                window.location.href = '../emergency_activity.php';
-            }
-        });
-        setTimeout(forceHideLoading, 5000);
-    });
-    </script>
-    <script src="../assets/js/activity-navigation.js"></script>
 </head>
 <body class="<?php echo isLoginPage() ? 'auth-page' : ''; ?>">
     <!-- Loading Overlay -->
@@ -94,13 +34,6 @@
             <div class="spinner"></div>
             <p class="loading-text mt-3">Loading...</p>
             <button id="cancel-loading" class="btn btn-danger mt-3">Cancel Loading</button>
-            
-            <!-- Enhanced direct activity navigation within loading overlay -->
-            <div class="mt-4 emergency-nav">
-                <button class="btn btn-sm btn-warning" id="emergency-activity-btn">
-                    <i class="fas fa-bolt"></i> Emergency Activity Navigation
-                </button>
-            </div>
         </div>
     </div>
 
@@ -110,21 +43,6 @@
         console.log('Cancel loading clicked');
         document.getElementById('loading-overlay').classList.remove('show');
     });
-    
-    // Ensure Enter key works on quick activity input
-    document.getElementById('quick-activity-id')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            emergencyGo(this.value);
-        }
-    });
-    
-    // Safety timeout to auto-hide loading overlay
-    setTimeout(function() {
-        if (document.getElementById('loading-overlay')?.classList.contains('show')) {
-            console.log('[Safety] Automatically hiding loading overlay after timeout');
-            document.getElementById('loading-overlay').classList.remove('show');
-        }
-    }, 8000);
     </script>
 
     <!-- Main Navigation Bar -->

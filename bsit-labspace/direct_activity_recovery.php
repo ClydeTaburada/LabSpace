@@ -40,6 +40,11 @@ if (!$activityId && isset($_SESSION['last_activity_id']) && is_numeric($_SESSION
     $activityId = (int)$_SESSION['last_activity_id'];
 }
 
+// Create the security token for verification
+$token = bin2hex(random_bytes(16));
+$_SESSION['activity_access_token'] = $token;
+$_SESSION['activity_access_time'] = time();
+
 // Try to get activity details
 $activity = null;
 $error = '';
@@ -77,11 +82,11 @@ $userType = isset($_SESSION['user_type']) ? $_SESSION['user_type'] : '';
 $redirectUrl = '';
 if ($activity) {
     if ($userType == 'student') {
-        $redirectUrl = "student/view_activity.php?id={$activityId}&recovered=1";
+        $redirectUrl = "student/view_activity.php?id={$activityId}&token={$token}&recovered=1";
     } elseif ($userType == 'teacher') {
-        $redirectUrl = "teacher/edit_activity.php?id={$activityId}&recovered=1";
+        $redirectUrl = "teacher/view_activity.php?id={$activityId}&token={$token}&recovered=1";
     } else {
-        $redirectUrl = "direct_activity.php?id={$activityId}";
+        $redirectUrl = "direct_activity.php?id={$activityId}&token={$token}";
     }
 }
 
@@ -97,6 +102,7 @@ if ($redirectUrl) {
     <title>Activity Recovery</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             padding: 20px;
@@ -120,11 +126,11 @@ if ($redirectUrl) {
 </head>
 <body>
     <div class="recovery-container">
-        <h1 class="mb-4">Activity Recovery</h1>
+        <h1 class="mb-4"><i class="fas fa-life-ring me-2"></i>Activity Recovery</h1>
         
         <?php if (!$activityId): ?>
             <div class="alert alert-warning">
-                <h4>No Activity ID Found</h4>
+                <h4><i class="fas fa-exclamation-triangle me-2"></i>No Activity ID Found</h4>
                 <p>Please enter an activity ID to access:</p>
                 <form method="get" action="direct_activity_recovery.php" class="mt-3">
                     <div class="input-group mb-3">
@@ -136,13 +142,13 @@ if ($redirectUrl) {
                 <div class="mt-4">
                     <h5>Try to recover from local storage:</h5>
                     <button id="recover-local-storage" class="btn btn-warning">
-                        Check LocalStorage
+                        <i class="fas fa-history me-2"></i>Check Browser Storage
                     </button>
                 </div>
             </div>
         <?php elseif (!$activity): ?>
             <div class="error-container">
-                <h4><i class="bi bi-exclamation-triangle"></i> Activity Not Found</h4>
+                <h4><i class="fas fa-exclamation-triangle me-2"></i>Activity Not Found</h4>
                 <p>Could not find activity with ID: <?php echo $activityId; ?></p>
                 <?php if ($error): ?>
                     <p class="text-muted"><?php echo $error; ?></p>
@@ -150,8 +156,12 @@ if ($redirectUrl) {
             </div>
             
             <div class="mt-4">
-                <a href="emergency_navigation.php" class="btn btn-danger">Go to Emergency Navigation</a>
-                <a href="index.php" class="btn btn-secondary">Go to Homepage</a>
+                <a href="emergency_navigation.php" class="btn btn-danger">
+                    <i class="fas fa-compass me-2"></i>Go to Emergency Navigation
+                </a>
+                <a href="index.php" class="btn btn-secondary">
+                    <i class="fas fa-home me-2"></i>Go to Homepage
+                </a>
             </div>
         <?php endif; ?>
         

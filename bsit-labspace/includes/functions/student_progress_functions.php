@@ -355,7 +355,7 @@ function getStudentRecentSubmissions($studentId, $limit = 15) {
     if (!$pdo) {
         return [];
     }
-    
+
     try {
         $stmt = $pdo->prepare("
             SELECT 
@@ -363,8 +363,6 @@ function getStudentRecentSubmissions($studentId, $limit = 15) {
                 a.title AS activity_title, 
                 a.activity_type,
                 m.title AS module_title,
-                m.id AS module_id,
-                c.id AS class_id,
                 s.code AS subject_code,
                 s.name AS subject_name
             FROM 
@@ -376,14 +374,70 @@ function getStudentRecentSubmissions($studentId, $limit = 15) {
             WHERE 
                 sub.student_id = ?
             ORDER BY
-                sub.submission_date DESC
+                sub.updated_at DESC
             LIMIT ?
         ");
         $stmt->execute([$studentId, $limit]);
-        
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         error_log('Error getting student recent submissions: ' . $e->getMessage());
         return [];
+    }
+}
+
+/**
+ * Update student progress after a submission
+ * 
+ * @param int $studentId Student ID
+ * @param int $activityId Activity ID
+ * @return bool True if progress updated successfully, false otherwise
+ */
+function updateStudentProgress($studentId, $activityId) {
+    $pdo = getDbConnection();
+    if (!$pdo) {
+        return false;
+    }
+
+    try {
+        // Get the class ID and module ID from the activity
+        $stmt = $pdo->prepare("
+            SELECT m.class_id, a.module_id 
+            FROM activities a
+            JOIN modules m ON a.module_id = m.id
+            WHERE a.id = ?
+        ");
+        $stmt->execute([$activityId]);
+        $activityData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$activityData) {
+            return false;
+        }
+
+        $classId = $activityData['class_id'];
+        $moduleId = $activityData['module_id'];
+
+        // Check if the student is enrolled in the class
+        $stmt = $pdo->prepare("
+            SELECT id 
+            FROM class_enrollments 
+            WHERE student_id = ? AND class_id = ?
+        ");
+        $stmt->execute([$studentId, $classId]);
+        if (!$stmt->fetch()) {
+            return false;
+        }
+
+        // Update progress for the module
+        $stmt = $pdo->prepare("
+            INSERT INTO student_module_progress (student_id, module_id, class_id, last_updated)
+            VALUES (?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE last_updated = NOW()
+        ");
+        $stmt->execute([$studentId, $moduleId, $classId]);
+
+        return true;
+    } catch (PDOException $e) {
+        error_log('Error updating student progress: ' . $e->getMessage());
+        return false;
     }
 }

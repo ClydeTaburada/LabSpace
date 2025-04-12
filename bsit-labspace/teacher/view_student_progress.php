@@ -232,6 +232,28 @@ include '../includes/header.php';
             <?php endif; ?>
         </div>
     </div>
+
+    <!-- Recent Submissions -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Recent Submissions</h5>
+        </div>
+        <div class="card-body">
+            <?php if (empty($submissions)): ?>
+                <p class="text-muted">No submissions found.</p>
+            <?php else: ?>
+                <ul class="list-group">
+                    <?php foreach ($submissions as $submission): ?>
+                        <li class="list-group-item">
+                            <strong><?php echo htmlspecialchars($submission['activity_title']); ?></strong>
+                            <br>
+                            <small class="text-muted">Submitted on: <?php echo date('M j, Y', strtotime($submission['submission_date'])); ?></small>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <script>

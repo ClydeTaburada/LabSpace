@@ -41,36 +41,6 @@
     transform: translateX(2px);
 }
 
-/* Emergency Navigation Button */
-.emergency-nav-button {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 9999;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #dc3545;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
-    border: none;
-    transition: all 0.3s ease;
-    opacity: 0.8;
-}
-
-.emergency-nav-button:hover {
-    transform: scale(1.1);
-    opacity: 1;
-    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
-}
-
-.emergency-nav-button i {
-    font-size: 1.3rem;
-}
-
 /* Activity Quick Access Panel */
 .quick-access-panel {
     border-radius: 8px;

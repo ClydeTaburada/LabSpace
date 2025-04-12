@@ -13,67 +13,27 @@
             return false;
         }
 
-        console.log('[Activity Nav] Navigating to activity ID:', activityId);
-        
-        // Save ID in session storage for server-side validation
-        try {
-            localStorage.setItem('last_activity_id', activityId);
-            sessionStorage.setItem('last_activity_id', activityId);
-            sessionStorage.setItem('activity_access_time', Date.now());
-            
-            // Add to recent activities for recovery
-            try {
-                const recentActivities = JSON.parse(localStorage.getItem('recent_activities') || '[]');
-                // Don't add duplicates and keep most recent at the start
-                const filteredActivities = recentActivities.filter(id => id != activityId);
-                filteredActivities.unshift(activityId);
-                // Keep only the 10 most recent
-                const trimmedActivities = filteredActivities.slice(0, 10);
-                localStorage.setItem('recent_activities', JSON.stringify(trimmedActivities));
-            } catch (e) {
-                console.error('[Activity Nav] Recent activities error:', e);
-            }
-        } catch (e) {
-            console.error('[Activity Nav] Storage error:', e);
-        }
-        
-        // Determine the correct path based on user role - avoid direct access
-        const isStudent = window.location.pathname.indexOf('/student/') >= 0;
-        const isTeacher = window.location.pathname.indexOf('/teacher/') >= 0;
-        let baseUrl = '';
-        
-        if (isStudent) {
-            baseUrl = 'view_activity.php?id=';
-        } else if (isTeacher) {
-            baseUrl = 'edit_activity.php?id=';
-        } else {
-            // Use student portal for viewing on any other page
-            if (window.location.pathname.split('/').length > 2) {
-                baseUrl = '../student/view_activity.php?id=';
-            } else {
-                baseUrl = 'student/view_activity.php?id=';
-            }
-        }
-        
-        // Show loading state if available
+        console.log(`[Activity Nav] Navigating to activity ID: ${activityId}`);
+
+        // Show loading state
         if (window.showLoading) {
             window.showLoading('Loading activity...');
         }
-        
-        // Navigate with basic approach - direct navigation
+
+        // Determine the correct URL
+        const url = `view_activity.php?id=${activityId}`;
+
+        // Navigate to the activity
         try {
-            // Navigate directly without token for better compatibility
-            window.location.href = baseUrl + activityId;
-            return true;
+            window.location.href = url;
         } catch (e) {
             console.error('[Activity Nav] Navigation error:', e);
-            
-            // Fallback to standard path navigation as a last resort
-            window.location.href = '../student/view_activity.php?id=' + activityId;
-            return false;
         }
     };
-    
+
+    // Debugging: Ensure the function is defined globally
+    console.log('[Activity Nav] navigateToActivity function is defined:', typeof window.navigateToActivity === 'function');
+
     // Attach the navigation to all activity elements
     document.addEventListener('DOMContentLoaded', function() {
         attachActivityNavigation();

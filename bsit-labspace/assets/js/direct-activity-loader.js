@@ -63,65 +63,8 @@
         form.submit();
     };
     
-    // Attach direct loading to all activity items when the DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('[Direct Loader] Adding click handlers to activity items');
-        
-        document.querySelectorAll('.activity-item, [data-activity-id]').forEach(function(element) {
-            const activityId = element.dataset.activityId || 
-                              element.querySelector('[data-activity-id]')?.dataset.activityId;
-            
-            if (activityId) {
-                // Mark as processed
-                element.classList.add('direct-loader-processed');
-                
-                // Add direct click handler with capture phase to ensure it runs first
-                element.addEventListener('click', function(e) {
-                    // Only handle if not clicking on a link or button
-                    if (e.target.closest('a:not(.activity-link), button:not(.activity-btn)')) {
-                        return;
-                    }
-                    
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Add visual feedback
-                    this.classList.add('active-click');
-                    
-                    // Load activity directly
-                    loadActivity(activityId);
-                    
-                    return false;
-                }, true); // true = use capture phase for higher priority
-                
-                // Add cursor style
-                element.style.cursor = 'pointer';
-                
-                // Add hover effect class
-                element.classList.add('activity-clickable');
-            }
-        });
-    });
-    
-    // Run once immediately for any elements already in the DOM
-    const readyElements = document.querySelectorAll('.activity-item, [data-activity-id]');
-    readyElements.forEach(function(element) {
-        const activityId = element.dataset.activityId || 
-                         element.querySelector('[data-activity-id]')?.dataset.activityId;
-        
-        if (activityId && !element.classList.contains('direct-loader-processed')) {
-            element.classList.add('direct-loader-processed');
-            element.style.cursor = 'pointer';
-            element.classList.add('activity-clickable');
-            
-            element.addEventListener('click', function(e) {
-                if (!e.target.closest('a:not(.activity-link), button:not(.activity-btn)')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    loadActivity(activityId);
-                    return false;
-                }
-            }, true);
-        }
-    });
+    (function() {
+        console.log('[Direct Loader] Skipping redundant activity click handler initialization.');
+        // Removed redundant click handler logic
+    })();
 })();

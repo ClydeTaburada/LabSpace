@@ -169,18 +169,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Reveal emergency links after a delay if page hasn't navigated
+    // Avoid adding emergency navigation options multiple times
+    const emergencyWrappers = document.querySelectorAll('.emergency-link-wrapper');
+    if (emergencyWrappers.length > 0) {
+        console.log('[Functions] Emergency navigation options already exist.');
+        return;
+    }
+
+    // Add emergency navigation options
     setTimeout(() => {
-        const emergencyWrappers = document.querySelectorAll('.emergency-link-wrapper');
-        if (emergencyWrappers.length > 0) {
-            console.log('[Activity] Revealing emergency navigation options');
-            emergencyWrappers.forEach(wrapper => {
-                wrapper.style.display = 'block';
-                wrapper.style.position = 'absolute';
-                wrapper.style.bottom = '5px';
-                wrapper.style.right = '5px';
-                wrapper.style.zIndex = '100';
-            });
-        }
+        const activityItems = document.querySelectorAll('.activity-item');
+        activityItems.forEach(item => {
+            const activityId = item.dataset.activityId;
+
+            // Validate activity ID
+            if (!activityId || isNaN(activityId) || activityId <= 0) {
+                console.error('[Functions] Invalid activity ID for emergency navigation:', activityId);
+                return;
+            }
+
+            if (!item.querySelector('.emergency-link')) {
+                const emergencyLink = document.createElement('a');
+                emergencyLink.href = `view_activity.php?id=${activityId}`;
+                emergencyLink.className = 'emergency-link btn btn-sm btn-danger';
+                emergencyLink.textContent = 'Emergency Open';
+                item.appendChild(emergencyLink);
+            }
+        });
+        console.log('[Activity] Revealing emergency navigation options');
     }, 3000);
 });

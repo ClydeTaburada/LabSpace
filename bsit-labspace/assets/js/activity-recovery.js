@@ -1,13 +1,12 @@
 /**
  * Activity Recovery System
- * This script provides emergency recovery of activities and ensures
- * users can always navigate back to activities they were working on
+ * Provides emergency recovery for failed activity navigation
  */
 
 (function() {
     // Only run on pages where it's needed (not on emergency pages)
     if (window.location.href.includes('emergency_navigation.php') || 
-        window.location.href.includes('direct_activity.php')) {
+        window.location.href.includes('direct_activity_recovery.php')) {
         return;
     }
     
@@ -28,7 +27,8 @@
         window.activityRecoveryData = {
             pageLoaded: true,
             lastErrorTime: 0,
-            errorCount: 0
+            errorCount: 0,
+            lastActivityId: localStorage.getItem('last_activity_id')
         };
         
         console.log('[Recovery] Activity recovery system initialized');
@@ -50,7 +50,7 @@
             
             // After 8 seconds, force hide
             setTimeout(() => {
-                if (overlay.classList.contains('show')) {
+                if (overlay && overlay.classList.contains('show')) {
                     console.log('[Recovery] Forcing hide of loading overlay after timeout');
                     overlay.classList.remove('show');
                     
@@ -73,7 +73,8 @@
                 const lastPageAttempt = localStorage.getItem('last_page_attempt');
                 
                 // If last attempt was to view an activity but we're not on an activity page
-                if (lastPageAttempt && lastPageAttempt.includes('view_activity.php')) {
+                if (lastPageAttempt && 
+                   (lastPageAttempt.includes('view_activity.php') || lastPageAttempt.includes('edit_activity.php'))) {
                     showRecoveryMessage(
                         'It looks like you were trying to access Activity #' + lastActivityId + 
                         '. Would you like to recover your navigation?',
@@ -94,7 +95,9 @@
         
         // If we get multiple errors in a short time, show recovery UI
         if (window.activityRecoveryData.errorCount >= 3) {
-            showRecoveryMessage('Multiple errors detected. Would you like to use emergency navigation?');
+            const lastActivityId = localStorage.getItem('last_activity_id');
+            showRecoveryMessage('Multiple errors detected. Would you like to use emergency navigation?', 
+                              lastActivityId);
         }
         
         // Force hide loading overlay if an error occurs
@@ -127,12 +130,12 @@
         // Update message content
         const messageDiv = document.getElementById('activity-recovery-message');
         messageDiv.innerHTML = `
-            <div style="margin-bottom:10px;"><strong><i class="bi bi-exclamation-triangle"></i> Navigation Recovery</strong></div>
+            <div style="margin-bottom:10px;"><strong><i class="fas fa-exclamation-triangle me-2"></i>Navigation Recovery</strong></div>
             <p style="margin-bottom:10px;">${message}</p>
             <div style="display:flex;gap:10px;">
                 ${activityId ? 
-                    `<a href="direct_activity.php?id=${activityId}" class="btn btn-danger btn-sm">Recover Activity</a>` :
-                    '<a href="emergency_navigation.php" class="btn btn-danger btn-sm">Emergency Navigation</a>'}
+                    `<a href="../direct_activity_recovery.php?id=${activityId}" class="btn btn-danger btn-sm">Recover Activity</a>` :
+                    '<a href="../emergency_navigation.php" class="btn btn-danger btn-sm">Emergency Navigation</a>'}
                 <button id="dismiss-recovery" class="btn btn-outline-secondary btn-sm">Dismiss</button>
             </div>
         `;
@@ -155,7 +158,8 @@
         localStorage.setItem('last_page_visit', window.location.href);
         
         // If we're on an activity page, store the ID
-        if (window.location.href.includes('view_activity.php')) {
+        if (window.location.href.includes('view_activity.php') || 
+            window.location.href.includes('edit_activity.php')) {
             const params = new URLSearchParams(window.location.search);
             const activityId = params.get('id');
             if (activityId) {
@@ -169,7 +173,6 @@
     
     // Before leaving the page, store the destination
     window.addEventListener('beforeunload', function() {
-        // Store that we're navigating away, to be used in case navigation fails
         localStorage.setItem('last_page_attempt', window.location.href);
     });
 })();

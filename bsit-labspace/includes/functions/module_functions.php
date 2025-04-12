@@ -76,6 +76,34 @@ function getModules($classId, $teacherId = null, $limit = null) {
 }
 
 /**
+ * Get all modules for a specific class
+ * 
+ * @param int $classId The class ID
+ * @return array Array of modules
+ */
+function getModulesByClassId($classId) {
+    $pdo = getDbConnection();
+    if (!$pdo) {
+        return [];
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT id, title, description, order_index, created_at, updated_at
+            FROM modules
+            WHERE class_id = ?
+            ORDER BY order_index, created_at
+        ");
+        
+        $stmt->execute([$classId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error getting modules by class ID: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/**
  * Get a module by ID
  * 
  * @param int $moduleId Module ID

@@ -251,27 +251,24 @@ function getStudentClassById($classId, $studentId) {
     }
     
     try {
-        $query = "
-            SELECT 
-                c.id, c.class_code, c.section, c.year_level, c.school_year, c.semester, c.is_active,
-                s.id AS subject_id, s.code AS subject_code, s.name AS subject_name,
-                CONCAT(u.first_name, ' ', u.last_name) AS teacher_name,
-                ce.enrollment_date
-            FROM 
-                class_enrollments ce
-                JOIN classes c ON ce.class_id = c.id
+        $sql = "SELECT c.*, 
+                u.first_name, u.last_name, 
+                CONCAT(u.first_name, ' ', u.last_name) AS instructor_name,
+                s.code AS subject_code, s.name AS subject_name,
+                c.section, c.school_year AS academic_term,
+                c.year_level, c.semester, c.is_active
+                FROM classes c 
+                JOIN class_enrollments e ON c.id = e.class_id
                 JOIN subjects s ON c.subject_id = s.id
                 JOIN users u ON c.teacher_id = u.id
-            WHERE 
-                c.id = ? AND ce.student_id = ? AND c.is_active = 1
-        ";
+                WHERE c.id = ? AND e.student_id = ?";
         
-        $stmt = $pdo->prepare($query);
+        $stmt = $pdo->prepare($sql);
         $stmt->execute([$classId, $studentId]);
         
         return $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        error_log('Error getting student class by ID: ' . $e->getMessage());
+        error_log('Error getting student class: ' . $e->getMessage());
         return null;
     }
 }

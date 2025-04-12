@@ -151,6 +151,20 @@
         
         // Monitor all clicks on the page
         document.addEventListener('click', function(e) {
+            const activityItem = e.target.closest('.activity-item, [data-activity-id]');
+            if (activityItem) {
+                const activityId = activityItem.dataset.activityId || 
+                                   activityItem.querySelector('[data-activity-id]')?.dataset.activityId;
+
+                if (activityId) {
+                    console.log(`[Debug] Activity clicked: ID=${activityId}`);
+                } else {
+                    console.warn('[Debug] Clicked activity item has no ID:', activityItem);
+                }
+            }
+        });
+
+        document.addEventListener('click', function(e) {
             // Check for activity clicks
             const activityItem = e.target.closest('.activity-item, .activity-link, [data-activity-id]');
             if (activityItem) {
@@ -328,6 +342,9 @@
     
     // Add emergency cancel loading button functionality with better visibility
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('[Debug] Skipping redundant activity click debug logging.');
+        // Removed redundant debug logic
+
         const cancelBtn = document.getElementById('cancel-loading');
         if (cancelBtn) {
             // Make cancel button more prominent

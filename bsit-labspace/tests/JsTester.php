@@ -76,11 +76,15 @@ class JsTester extends TestBase {
         
         // Code content check
         if ($contains !== null) {
-            $code = preg_replace('/(\/\/.*?$)|\/\*[\s\S]*?\*\//m', '', $this->code); // Remove comments
-            $passed = stripos($code, $contains) !== false;
-            return $this->formatResult($name, $passed, $passed 
-                ? "Code contains required element: '{$contains}'" 
-                : "Code should contain '{$contains}'", $category);
+            try {
+                $code = preg_replace('/(\/\/.*?$)|\/\*[\s\S]*?\*\//m', '', $this->code); // Remove comments
+                $passed = stripos($code, $contains) !== false;
+                return $this->formatResult($name, $passed, $passed 
+                    ? "Code contains required element: '{$contains}'" 
+                    : "Code should contain '{$contains}'", $category);
+            } catch (\Exception $e) {
+                return $this->formatResult($name, false, "Error checking code: " . $e->getMessage(), $category);
+            }
         }
         
         // If we reach here, the test case was invalid

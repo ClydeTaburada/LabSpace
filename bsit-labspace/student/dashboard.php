@@ -8,11 +8,17 @@ require_once '../includes/functions/activity_functions.php';
 // Check if user is logged in and is a student
 requireRole('student');
 
-// Get student's enrolled classes
-$enrolledClasses = getStudentClasses($_SESSION['user_id']);
+// Get student's enrolled classes - Add error handling
+$enrolledClasses = getStudentClasses($_SESSION['user_id']) ?: [];
 
-// Get student's progress data
-$progressData = getStudentProgress($_SESSION['user_id']);
+// Get student's progress data - Add error handling
+$progressData = getStudentProgress($_SESSION['user_id']) ?: ['classes' => [], 'modules' => []];
+
+// Fetch recent submissions using the existing function - Add error handling
+$recentActivities = getStudentRecentSubmissions($_SESSION['user_id'], 5) ?: [];
+
+// Get upcoming deadlines - Make sure we're using the function from activity_functions.php
+$upcomingDeadlines = getUpcomingDeadlines($_SESSION['user_id'], 5) ?: [];
 
 $pageTitle = "Student Dashboard";
 include '../includes/header.php';
@@ -35,7 +41,7 @@ include '../includes/header.php';
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-book-open"></i> My Classes</h5>
                     <p class="card-text">View your enrolled classes and learning materials.</p>
-                    <a href="classes.php" class="btn btn-primary">View Classes</a>
+                    <a href="my_classes.php" class="btn btn-primary">View Classes</a>
                 </div>
             </div>
         </div>
@@ -251,6 +257,7 @@ include '../includes/header.php';
             </div>
         </div>
         
+        <!-- Upcoming Deadlines Section -->
         <div class="col-md-6 mb-4">
             <div class="card">
                 <div class="card-header bg-danger text-white">
@@ -268,8 +275,11 @@ include '../includes/header.php';
                                 <a href="view_activity.php?id=<?php echo $item['id']; ?>" class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1"><?php echo htmlspecialchars($item['title']); ?></h6>
-                                        <small class="text-danger">
+                                        <small class="<?php echo getDueDateStatusClass($item['due_date']); ?>">
                                             <?php echo date('M j, Y', strtotime($item['due_date'])); ?>
+                                            <?php if (isActivityOverdue($item['due_date'])): ?>
+                                                <span class="badge bg-danger ms-1">OVERDUE</span>
+                                            <?php endif; ?>
                                         </small>
                                     </div>
                                     <p class="mb-1 small"><?php echo htmlspecialchars($item['subject_code'] . ' - ' . $item['subject_name']); ?></p>
@@ -292,22 +302,61 @@ include '../includes/header.php';
             </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <!-- Recent Activities Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (empty($recentActivities)): ?>
+                        <p class="text-muted">No recent activities found.</p>
+                    <?php else: ?>
+                        <ul class="list-group">
+                            <?php foreach ($recentActivities as $activity): ?>
+                                <li class="list-group-item">
+                                    <strong><?php echo htmlspecialchars($activity['activity_title']); ?></strong>
+                                    <br>
+                                    <small class="text-muted">Submitted on: <?php echo date('M j, Y', strtotime($activity['updated_at'])); ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Submissions Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Recent Submissions</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (empty($recentActivities)): ?>
+                        <p class="text-muted">No recent submissions found.</p>
+                    <?php else: ?>
+                        <ul class="list-group">
+                            <?php foreach ($recentActivities as $activity): ?>
+                                <li class="list-group-item">
+                                    <strong><?php echo htmlspecialchars($activity['activity_title']); ?></strong>
+                                    <br>
+                                    <small class="text-muted">Submitted on: <?php echo date('M j, Y', strtotime($activity['updated_at'])); ?></small>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add click handling for accordion items to make them more accessible
-    const accordionItems = document.querySelectorAll('.accordion-item');
-    
-    accordionItems.forEach(item => {
-        // Make module items clickable 
-        const moduleItems = item.querySelectorAll('.list-group-item');
-        moduleItems.forEach(moduleItem => {
-            moduleItem.classList.add('module-item', 'clickable-card');
-        });
-    });
-    
-    // Direct navigation for activity items - no popups
+    // Direct navigation for activity items
     document.querySelectorAll('.activity-item').forEach(activityItem => {
         const activityId = activityItem.dataset.activityId;
         
@@ -315,34 +364,25 @@ document.addEventListener('DOMContentLoaded', function() {
             activityItem.style.cursor = 'pointer';
             
             activityItem.addEventListener('click', function(e) {
-                // Don't trigger if clicking on a child link or button
-                if (e.target.closest('a, button, .btn')) {
-                    return;
+                // Prevent default behavior if not clicking on a link or button
+                if (!e.target.closest('a, button')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Navigating to activity:', activityId);
+                    
+                    // Navigate directly to the activity page
+                    window.location.href = `view_activity.php?id=${activityId}`;
                 }
-                
-                e.preventDefault();
-                e.stopPropagation();
-                
-                console.log('Navigating to activity:', activityId);
-                
-                // Show loading indicator if available
-                if (window.showLoading) {
-                    window.showLoading('Loading activity...');
-                }
-                
-                // Store the activity ID in localStorage for potential recovery
-                try {
-                    localStorage.setItem('last_activity_id', activityId);
-                    sessionStorage.setItem('last_activity_id', activityId);
-                } catch (e) {
-                    console.error('Error storing activity ID:', e);
-                }
-                
-                // Navigate directly to the activity page
-                window.location.href = 'view_activity.php?id=' + activityId;
             });
         }
     });
+    
+    // Debug information to console to help troubleshoot
+    console.log('Dashboard loaded with:');
+    console.log('- Classes:', <?php echo json_encode(array_keys($progressData['classes'] ?? [])); ?>);
+    console.log('- Recent activities:', <?php echo json_encode(count($recentActivities)); ?>);
+    console.log('- Upcoming deadlines:', <?php echo json_encode(count($upcomingDeadlines)); ?>);
 });
 </script>
 

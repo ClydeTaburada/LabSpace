@@ -323,6 +323,28 @@ include '../includes/header.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.0/ext-language_tools.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.23.0/ext-beautify.js"></script>
 
+<!-- Add submission debugging script -->
+<script>
+// Global error handler to catch submission issues
+window.addEventListener('error', function(e) {
+    console.error('Global error caught:', e.error || e.message);
+    const errorInfo = document.createElement('div');
+    errorInfo.style.position = 'fixed';
+    errorInfo.style.bottom = '10px';
+    errorInfo.style.right = '10px';
+    errorInfo.style.backgroundColor = '#f8d7da';
+    errorInfo.style.color = '#721c24';
+    errorInfo.style.padding = '10px';
+    errorInfo.style.borderRadius = '5px';
+    errorInfo.style.maxWidth = '80%';
+    errorInfo.style.zIndex = '9999';
+    errorInfo.innerHTML = `<strong>Error:</strong> ${e.error?.message || e.message}<br>
+                          <small>See console for details</small>
+                          <button style="display:block;margin-top:5px" onclick="this.parentNode.remove()">Dismiss</button>`;
+    document.body.appendChild(errorInfo);
+});
+</script>
+
 <!-- Add a fallback for CDN failure -->
 <script>
 // Check if Ace loaded correctly, if not, try an alternative CDN
@@ -999,98 +1021,204 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Add the missing submitCode function
+    // Add the missing submitCode function with improved error handling and debugging
     function submitCode() {
-        if (!editor || typeof editor.getValue !== 'function') {
-            console.error('Cannot submit code: Editor not properly initialized');
+        try {
+            console.log('Starting submission process...');
+            
+            if (!editor || typeof editor.getValue !== 'function') {
+                throw new Error('Editor not properly initialized');
+            }
+            
+            const code = editor.getValue();
+            const language = document.getElementById('language-select').value;
             const submitMessage = document.getElementById('submit-message');
+            const confirmSubmitBtn = document.getElementById('confirm-submit-btn');
+            
+            console.log('Preparing submission with language:', language);
+            
+            confirmSubmitBtn.disabled = true;
             if (submitMessage) {
                 submitMessage.innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-1"></i> Error: Code editor not initialized. Please refresh the page.
+                    <div class="alert alert-info">
+                        <i class="fas fa-spinner fa-spin me-1"></i> Submitting code...
                     </div>
                 `;
             }
-            return;
-        }
-        
-        const code = editor.getValue();
-        const language = document.getElementById('language-select').value;
-        const submitMessage = document.getElementById('submit-message');
-        const confirmSubmitBtn = document.getElementById('confirm-submit-btn');
-        
-        confirmSubmitBtn.disabled = true;
-        submitMessage.innerHTML = `
-            <div class="alert alert-info">
-                <i class="fas fa-spinner fa-spin me-1"></i> Submitting code...
-            </div>
-        `;
-        
-        // Update the path to the correct location
-        fetch('../includes/functions/submit_activity.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
+            
+            // Create emergency backup
+            try {
+                localStorage.setItem(`emergency_code_backup_${<?php echo $activityId; ?>}`, code);
+                localStorage.setItem('emergency_timestamp', new Date().toISOString());
+                console.log('Emergency backup created');
+            } catch (backupErr) {
+                console.warn('Could not create emergency backup:', backupErr);
+            }
+            
+            // Try multiple submission approaches for better reliability
+            console.log('Attempting submission via XHR...');
+            
+            // First approach: XHR with detailed logging
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '../includes/functions/submit_activity.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            
+            xhr.onreadystatechange = function() {
+                console.log('XHR state change:', xhr.readyState, 'status:', xhr.status);
+                
+                if (xhr.readyState === 4) {
+                    // Complete
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        console.log('XHR completed successfully with status:', xhr.status);
+                        try {
+                            const responseText = xhr.responseText;
+                            console.log('Response:', responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
+                            
+                            // Check if valid JSON
+                            const data = JSON.parse(responseText);
+                            if (data.success) {
+                                console.log('Submission successful!');
+                                if (submitMessage) {
+                                    submitMessage.innerHTML = `
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-check-circle me-1"></i> Code submitted successfully!
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Redirect after success
+                                setTimeout(function() {
+                                    window.location.href = `view_activity.php?id=<?php echo $activityId; ?>&submitted=1`;
+                                }, 1500);
+                                
+                                return;
+                            } else {
+                                console.error('Server returned error:', data.error || 'Unknown error');
+                                if (submitMessage) {
+                                    submitMessage.innerHTML = `
+                                        <div class="alert alert-danger">
+                                            <i class="fas fa-exclamation-circle me-1"></i> Error: ${data.error || 'Unknown error'}
+                                        </div>
+                                    `;
+                                }
+                            }
+                        } catch (jsonError) {
+                            console.error('Failed to parse JSON response:', jsonError);
+                            tryFallbackSubmission();
+                        }
+                    } else {
+                        console.error('XHR failed with status:', xhr.status);
+                        tryFallbackSubmission();
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                console.error('XHR encountered an error');
+                tryFallbackSubmission();
+            };
+            
+            // Prepare data and send
+            const data = JSON.stringify({
                 activity_id: <?php echo $activityId; ?>,
                 code: code,
                 language: language
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error(`Cannot find submission endpoint (404). Please contact your instructor.`);
+            });
+            
+            console.log('Sending data, size:', data.length, 'bytes');
+            xhr.send(data);
+            
+            // Fallback submission method using form
+            function tryFallbackSubmission() {
+                console.log('Trying fallback submission via form...');
+                if (submitMessage) {
+                    submitMessage.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-sync-alt fa-spin me-1"></i> Trying alternative submission method...
+                        </div>
+                    `;
                 }
-                throw new Error(`Server responded with status: ${response.status}`);
+                
+                // Use form submission as fallback
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '../includes/direct_submit.php';
+                form.style.display = 'none';
+                
+                // Add fields
+                const activityIdField = document.createElement('input');
+                activityIdField.type = 'hidden';
+                activityIdField.name = 'activity_id';
+                activityIdField.value = <?php echo $activityId; ?>;
+                form.appendChild(activityIdField);
+                
+                const codeField = document.createElement('input');
+                codeField.type = 'hidden';
+                codeField.name = 'code';
+                codeField.value = code;
+                form.appendChild(codeField);
+                
+                const languageField = document.createElement('input');
+                languageField.type = 'hidden';
+                languageField.name = 'language';
+                languageField.value = language;
+                form.appendChild(languageField);
+                
+                // Add to document and submit
+                document.body.appendChild(form);
+                console.log('Form created, submitting...');
+                form.submit();
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.error) {
+        } catch (e) {
+            console.error('Error in submission process:', e);
+            const submitMessage = document.getElementById('submit-message');
+            const confirmSubmitBtn = document.getElementById('confirm-submit-btn');
+            
+            if (confirmSubmitBtn) confirmSubmitBtn.disabled = false;
+            
+            if (submitMessage) {
                 submitMessage.innerHTML = `
                     <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-1"></i> ${data.error}
-                    </div>
-                `;
-                confirmSubmitBtn.disabled = false;
-            } else {
-                submitMessage.innerHTML = `
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-1"></i> Code submitted successfully!
+                        <i class="fas fa-exclamation-circle me-1"></i> Error in submission process: ${e.message}
+                        <button class="btn btn-sm btn-warning mt-2" id="force-fallback-btn">
+                            Try fallback submission
+                        </button>
                     </div>
                 `;
                 
-                // Remove backup
-                try {
-                    localStorage.removeItem(`code_backup_${<?php echo $activityId; ?>}`);
-                    localStorage.removeItem(`code_backup_time_${<?php echo $activityId; ?>}`);
-                } catch (e) {
-                    console.error('Error removing backup:', e);
-                }
-                
-                // Redirect after a delay
-                setTimeout(() => {
-                    window.location.href = `view_activity.php?id=${<?php echo $activityId; ?>}&submitted=1`;
-                }, 1500);
+                // Add listener for fallback button
+                document.getElementById('force-fallback-btn')?.addEventListener('click', function() {
+                    const code = editor?.getValue() || '';
+                    const language = document.getElementById('language-select')?.value || 'javascript';
+                    
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '../includes/direct_submit.php';
+                    
+                    const activityIdField = document.createElement('input');
+                    activityIdField.type = 'hidden';
+                    activityIdField.name = 'activity_id';
+                    activityIdField.value = <?php echo $activityId; ?>;
+                    form.appendChild(activityIdField);
+                    
+                    const codeField = document.createElement('input');
+                    codeField.type = 'hidden';
+                    codeField.name = 'code';
+                    codeField.value = code;
+                    form.appendChild(codeField);
+                    
+                    const languageField = document.createElement('input');
+                    languageField.type = 'hidden';
+                    languageField.name = 'language';
+                    languageField.value = language;
+                    form.appendChild(languageField);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                });
             }
-        })
-        .catch(error => {
-            console.error('Submission error:', error);
-            submitMessage.innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle me-1"></i> Error: ${error.message}
-                    <div class="mt-2 small">
-                        If this error persists, please try:
-                        <ul class="mb-0 ms-3">
-                            <li>Refreshing the page</li>
-                            <li>Copying your code to a text file</li>
-                            <li>Contacting your instructor</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-            confirmSubmitBtn.disabled = false;
-        });
+        }
     }
     
     // Toggle fullscreen

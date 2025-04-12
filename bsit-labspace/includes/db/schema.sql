@@ -107,6 +107,8 @@ CREATE TABLE submissions (
     activity_id INT NOT NULL,
     student_id INT NOT NULL,
     submission_type ENUM('code', 'file', 'text') NOT NULL,
+    code TEXT,
+    language VARCHAR(20) DEFAULT 'unknown',
     content TEXT,
     file_path VARCHAR(255),
     score DECIMAL(5,2),
